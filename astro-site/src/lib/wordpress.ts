@@ -1,35 +1,103 @@
 import { GraphQLClient } from 'graphql-request';
 
 const endpoint = import.meta.env.WORDPRESS_API_URL || 'https://alarmecenter.com.br/graphql';
+const username = import.meta.env.WORDPRESS_USERNAME;
+const password = import.meta.env.WORDPRESS_PASSWORD;
 
+// Create authenticated client
 export const graphqlClient = new GraphQLClient(endpoint, {
   headers: {
     'Content-Type': 'application/json',
+    ...(username && password && {
+      'Authorization': `Basic ${btoa(`${username}:${password}`)}`
+    })
   },
 });
 
-// GraphQL Queries
+// GraphQL Queries - Updated for WooCommerce
 export const GET_PRODUCTS = `
-  query GetProducts {
-    products(first: 20) {
+  query GetProducts($first: Int = 50) {
+    products(first: $first) {
       nodes {
         id
+        databaseId
         name
         slug
         description
+        shortDescription
         image {
           sourceUrl
           altText
+        }
+        galleryImages {
+          nodes {
+            sourceUrl
+            altText
+          }
         }
         ... on SimpleProduct {
           price
           regularPrice
           salePrice
+          stockStatus
+          stockQuantity
+        }
+        ... on VariableProduct {
+          price
+          regularPrice
+          salePrice
+          stockStatus
         }
         productCategories {
           nodes {
+            id
             name
             slug
+            description
+          }
+        }
+        productTags {
+          nodes {
+            name
+            slug
+          }
+        }
+        sku
+        status
+        catalogVisibility
+        featured
+        onSale
+      }
+    }
+  }
+`;
+
+export const GET_PRODUCT_CATEGORIES = `
+  query GetProductCategories($first: Int = 50) {
+    productCategories(first: $first, where: {hideEmpty: true}) {
+      nodes {
+        id
+        databaseId
+        name
+        slug
+        description
+        count
+        image {
+          sourceUrl
+          altText
+        }
+        parent {
+          node {
+            name
+            slug
+          }
+        }
+        children {
+          nodes {
+            id
+            name
+            slug
+            count
           }
         }
       }
@@ -37,23 +105,58 @@ export const GET_PRODUCTS = `
   }
 `;
 
-export const GET_PRODUCT_CATEGORIES = `
-  query GetProductCategories {
-    productCategories(first: 50) {
-      nodes {
-        id
-        name
-        slug
-        description
-        image {
+export const GET_SINGLE_PRODUCT = `
+  query GetSingleProduct($slug: String!) {
+    product(id: $slug, idType: SLUG) {
+      id
+      databaseId
+      name
+      slug
+      description
+      shortDescription
+      image {
+        sourceUrl
+        altText
+      }
+      galleryImages {
+        nodes {
           sourceUrl
           altText
         }
-        count
-        parent {
-          node {
-            name
-            slug
+      }
+      ... on SimpleProduct {
+        price
+        regularPrice
+        salePrice
+        stockStatus
+        stockQuantity
+      }
+      productCategories {
+        nodes {
+          id
+          name
+          slug
+        }
+      }
+      sku
+      status
+      featured
+      onSale
+      reviews {
+        averageRating
+        reviewCount
+      }
+      related {
+        nodes {
+          id
+          name
+          slug
+          image {
+            sourceUrl
+            altText
+          }
+          ... on SimpleProduct {
+            price
           }
         }
       }
@@ -62,8 +165,8 @@ export const GET_PRODUCT_CATEGORIES = `
 `;
 
 export const GET_POSTS = `
-  query GetPosts {
-    posts(first: 10) {
+  query GetPosts($first: Int = 10) {
+    posts(first: $first) {
       nodes {
         id
         title
@@ -83,24 +186,11 @@ export const GET_POSTS = `
             slug
           }
         }
-      }
-    }
-  }
-`;
-
-export const GET_MENU_ITEMS = `
-  query GetMenuItems {
-    menuItems(first: 50) {
-      nodes {
-        id
-        label
-        url
-        path
-        target
-        cssClasses
-        description
-        parentId
-        order
+        author {
+          node {
+            name
+          }
+        }
       }
     }
   }
