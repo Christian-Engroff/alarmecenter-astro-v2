@@ -1,0 +1,213 @@
+---
+// Header component matching Electro theme layout
+---
+
+<header class="w-full">
+  <!-- Top Bar -->
+  <div class="header-top bg-gray-100 py-2 text-sm hidden md:block">
+    <div class="container mx-auto px-4">
+      <div class="flex justify-between items-center">
+        <!-- Left side links -->
+        <div class="flex space-x-4 text-gray-600">
+          <a href="#" class="hover:text-primary transition-colors">
+            📍 Localização
+          </a>
+          <a href="/track-order" class="hover:text-primary transition-colors">
+            📦 Acompanhe seu pedido
+          </a>
+        </div>
+        
+        <!-- Right side links -->
+        <div class="flex space-x-4 text-gray-600">
+          <button id="theme-toggle" class="hover:text-primary transition-colors">
+            🌓 Dark/Light
+          </button>
+          <a href="/my-account" class="hover:text-primary transition-colors">
+            👤 Minha Conta
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Header -->
+  <div class="header-main bg-white shadow-md">
+    <div class="container mx-auto px-4 py-4">
+      <div class="flex items-center justify-between">
+        <!-- Logo -->
+        <div class="logo">
+          <a href="/" class="text-2xl font-bold text-primary">
+            <span class="text-red-600">Alarme</span><span class="text-gray-800">Center</span>
+          </a>
+          <p class="text-xs text-gray-500 mt-1">Segurança com tecnologia</p>
+        </div>
+
+        <!-- Search Bar - Desktop -->
+        <div class="hidden md:flex flex-1 max-w-2xl mx-8">
+          <div class="relative w-full">
+            <input 
+              type="search" 
+              placeholder="Buscar produtos..." 
+              class="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:outline-none focus:border-primary"
+            />
+            <button class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-primary">
+              🔍
+            </button>
+          </div>
+        </div>
+
+        <!-- Right Actions -->
+        <div class="flex items-center space-x-4">
+          <!-- Wishlist -->
+          <a href="/wishlist" class="hidden md:flex flex-col items-center text-gray-600 hover:text-primary transition-colors">
+            <span class="text-xl">❤️</span>
+            <span class="text-xs">Lista</span>
+          </a>
+          
+          <!-- Cart -->
+          <a href="/cart" class="flex flex-col items-center text-gray-600 hover:text-primary transition-colors relative">
+            <span class="text-xl">🛒</span>
+            <span class="text-xs">Carrinho</span>
+            <span class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+              0
+            </span>
+          </a>
+          
+          <!-- Mobile Menu Button -->
+          <button class="mobile-menu-btn md:hidden text-2xl text-gray-600">
+            ☰
+          </button>
+        </div>
+      </div>
+
+      <!-- Mobile Search -->
+      <div class="md:hidden mt-4">
+        <div class="relative">
+          <input 
+            type="search" 
+            placeholder="Buscar produtos..." 
+            class="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:outline-none focus:border-primary"
+          />
+          <button class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-primary">
+            🔍
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Navigation Bar -->
+  <nav class="navigation-bar bg-gray-800 text-white">
+    <div class="container mx-auto px-4">
+      <div class="flex items-center">
+        <!-- Categories Dropdown -->
+        <div class="relative group">
+          <button class="category-menu bg-red-600 px-6 py-3 flex items-center space-x-2 hover:bg-red-700 transition-colors">
+            <span>☰</span>
+            <span>TODAS AS CATEGORIAS</span>
+            <span class="ml-2">▼</span>
+          </button>
+          
+          <!-- Dropdown Menu -->
+          <div class="absolute top-full left-0 w-80 bg-white text-gray-800 shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300">
+            <div class="py-2">
+              <a href="/categoria/alarmes" class="block px-4 py-3 hover:bg-gray-100 border-b border-gray-200">
+                <div class="flex items-center space-x-3">
+                  <span class="text-red-600">🚨</span>
+                  <span>Sistemas de alarme</span>
+                </div>
+              </a>
+              <a href="/categoria/cameras" class="block px-4 py-3 hover:bg-gray-100 border-b border-gray-200">
+                <div class="flex items-center space-x-3">
+                  <span class="text-red-600">📹</span>
+                  <span>Câmeras e Gravadores</span>
+                </div>
+              </a>
+              <a href="/categoria/cerca-eletrica" class="block px-4 py-3 hover:bg-gray-100 border-b border-gray-200">
+                <div class="flex items-center space-x-3">
+                  <span class="text-red-600">⚡</span>
+                  <span>Cerca Elétrica</span>
+                </div>
+              </a>
+              <a href="/categoria/controle-acesso" class="block px-4 py-3 hover:bg-gray-100 border-b border-gray-200">
+                <div class="flex items-center space-x-3">
+                  <span class="text-red-600">🔐</span>
+                  <span>Controle de Acesso</span>
+                </div>
+              </a>
+              <a href="/categoria/baterias" class="block px-4 py-3 hover:bg-gray-100 border-b border-gray-200">
+                <div class="flex items-center space-x-3">
+                  <span class="text-red-600">🔋</span>
+                  <span>Bateria Estacionária</span>
+                </div>
+              </a>
+              <a href="/categoria/energia-nobreak" class="block px-4 py-3 hover:bg-gray-100">
+                <div class="flex items-center space-x-3">
+                  <span class="text-red-600">⚡</span>
+                  <span>Energia & Nobreak</span>
+                </div>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Main Navigation -->
+        <div class="hidden lg:flex items-center ml-8 space-x-8">
+          <a href="/" class="py-3 border-b-2 border-transparent hover:border-red-500 transition-colors">
+            Home
+          </a>
+          <a href="/loja" class="py-3 border-b-2 border-transparent hover:border-red-500 transition-colors">
+            Loja
+          </a>
+          <a href="/sobre" class="py-3 border-b-2 border-transparent hover:border-red-500 transition-colors">
+            Sobre
+          </a>
+          <a href="/contato" class="py-3 border-b-2 border-transparent hover:border-red-500 transition-colors">
+            Contato
+          </a>
+        </div>
+
+        <!-- Right side info -->
+        <div class="hidden lg:flex ml-auto text-sm">
+          <div class="flex items-center space-x-2">
+            <span>📞</span>
+            <span>(41) 3333-4444</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+</header>
+
+<!-- Mobile Menu -->
+<div class="mobile-menu fixed top-0 left-0 w-80 h-full bg-white shadow-xl z-50 transform -translate-x-full transition-transform duration-300">
+  <div class="p-4 border-b">
+    <div class="flex justify-between items-center">
+      <h3 class="text-lg font-semibold">Menu</h3>
+      <button class="mobile-menu-close text-2xl">×</button>
+    </div>
+  </div>
+  
+  <div class="p-4">
+    <nav class="space-y-4">
+      <a href="/" class="block py-2 text-gray-800 hover:text-red-600">Home</a>
+      <a href="/loja" class="block py-2 text-gray-800 hover:text-red-600">Loja</a>
+      
+      <div class="border-t pt-4 mt-4">
+        <h4 class="font-semibold mb-2">Categorias</h4>
+        <a href="/categoria/alarmes" class="block py-2 pl-4 text-gray-600 hover:text-red-600">🚨 Sistemas de alarme</a>
+        <a href="/categoria/cameras" class="block py-2 pl-4 text-gray-600 hover:text-red-600">📹 Câmeras e Gravadores</a>
+        <a href="/categoria/cerca-eletrica" class="block py-2 pl-4 text-gray-600 hover:text-red-600">⚡ Cerca Elétrica</a>
+        <a href="/categoria/controle-acesso" class="block py-2 pl-4 text-gray-600 hover:text-red-600">🔐 Controle de Acesso</a>
+        <a href="/categoria/baterias" class="block py-2 pl-4 text-gray-600 hover:text-red-600">🔋 Baterias</a>
+        <a href="/categoria/energia-nobreak" class="block py-2 pl-4 text-gray-600 hover:text-red-600">⚡ Energia & Nobreak</a>
+      </div>
+      
+      <div class="border-t pt-4 mt-4">
+        <a href="/my-account" class="block py-2 text-gray-800 hover:text-red-600">👤 Minha Conta</a>
+        <a href="/wishlist" class="block py-2 text-gray-800 hover:text-red-600">❤️ Lista de Desejos</a>
+        <a href="/track-order" class="block py-2 text-gray-800 hover:text-red-600">📦 Rastrear Pedido</a>
+      </div>
+    </nav>
+  </div>
+</div>
