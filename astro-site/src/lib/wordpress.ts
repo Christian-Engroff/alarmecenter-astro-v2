@@ -311,33 +311,137 @@ export const mockCategories = [
   }
 ];
 
-// API Functions
+// API Functions with Authentication
 export async function fetchProducts() {
   try {
-    const data = await graphqlClient.request(GET_PRODUCTS);
-    return data.products.nodes;
+    console.log('Fetching products from WordPress API...');
+    const data = await graphqlClient.request(GET_PRODUCTS, { first: 50 });
+    console.log('Products fetched successfully:', data.products.nodes.length);
+    
+    // Transform data to match our interface
+    return data.products.nodes.map(product => ({
+      id: product.databaseId?.toString() || product.id,
+      name: product.name,
+      slug: product.slug,
+      description: product.shortDescription || product.description,
+      price: product.price ? `R$ ${product.price}` : 'Consulte',
+      regularPrice: product.regularPrice ? `R$ ${product.regularPrice}` : null,
+      salePrice: product.salePrice ? `R$ ${product.salePrice}` : null,
+      image: {
+        sourceUrl: product.image?.sourceUrl || '/placeholder-product.jpg',
+        altText: product.image?.altText || product.name
+      },
+      productCategories: {
+        nodes: product.productCategories?.nodes || []
+      },
+      sku: product.sku,
+      onSale: product.onSale,
+      featured: product.featured,
+      stockStatus: product.stockStatus
+    }));
   } catch (error) {
-    console.warn('Failed to fetch products from WordPress API, using mock data:', error);
+    console.warn('Failed to fetch products from WordPress API:', error);
+    console.log('Using mock data...');
     return mockProducts;
   }
 }
 
 export async function fetchProductCategories() {
   try {
-    const data = await graphqlClient.request(GET_PRODUCT_CATEGORIES);
-    return data.productCategories.nodes;
+    console.log('Fetching categories from WordPress API...');
+    const data = await graphqlClient.request(GET_PRODUCT_CATEGORIES, { first: 50 });
+    console.log('Categories fetched successfully:', data.productCategories.nodes.length);
+    
+    // Transform data to match our interface
+    return data.productCategories.nodes.map(category => ({
+      id: category.databaseId?.toString() || category.id,
+      name: category.name,
+      slug: category.slug,
+      description: category.description || '',
+      count: category.count,
+      image: {
+        sourceUrl: category.image?.sourceUrl || '',
+        altText: category.image?.altText || category.name
+      },
+      parent: category.parent?.node || null,
+      children: category.children?.nodes || []
+    }));
   } catch (error) {
-    console.warn('Failed to fetch categories from WordPress API, using mock data:', error);
+    console.warn('Failed to fetch categories from WordPress API:', error);
+    console.log('Using mock data...');
     return mockCategories;
+  }
+}
+
+export async function fetchSingleProduct(slug: string) {
+  try {
+    console.log('Fetching single product:', slug);
+    const data = await graphqlClient.request(GET_SINGLE_PRODUCT, { slug });
+    
+    if (!data.product) {
+      throw new Error('Product not found');
+    }
+    
+    const product = data.product;
+    return {
+      id: product.databaseId?.toString() || product.id,
+      name: product.name,
+      slug: product.slug,
+      description: product.description,
+      shortDescription: product.shortDescription,
+      price: product.price ? `R$ ${product.price}` : 'Consulte',
+      regularPrice: product.regularPrice ? `R$ ${product.regularPrice}` : null,
+      salePrice: product.salePrice ? `R$ ${product.salePrice}` : null,
+      image: {
+        sourceUrl: product.image?.sourceUrl || '/placeholder-product.jpg',
+        altText: product.image?.altText || product.name
+      },
+      galleryImages: product.galleryImages?.nodes || [],
+      productCategories: {
+        nodes: product.productCategories?.nodes || []
+      },
+      sku: product.sku,
+      onSale: product.onSale,
+      featured: product.featured,
+      stockStatus: product.stockStatus,
+      reviews: product.reviews,
+      related: product.related?.nodes || []
+    };
+  } catch (error) {
+    console.warn('Failed to fetch single product:', error);
+    return null;
   }
 }
 
 export async function fetchPosts() {
   try {
-    const data = await graphqlClient.request(GET_POSTS);
+    console.log('Fetching posts from WordPress API...');
+    const data = await graphqlClient.request(GET_POSTS, { first: 10 });
+    console.log('Posts fetched successfully:', data.posts.nodes.length);
     return data.posts.nodes;
   } catch (error) {
     console.warn('Failed to fetch posts from WordPress API:', error);
     return [];
+  }
+}
+
+// Test authentication
+export async function testAuthConnection() {
+  try {
+    const testQuery = `
+      query TestAuth {
+        viewer {
+          id
+          name
+          email
+        }
+      }
+    `;
+    const data = await graphqlClient.request(testQuery);
+    console.log('Authentication successful:', data.viewer);
+    return true;
+  } catch (error) {
+    console.warn('Authentication test failed:', error);
+    return false;
   }
 }
