@@ -10,18 +10,14 @@ export default defineConfig({
     })
   ],
   server: {
-    host: true,
+    host: '0.0.0.0',
     port: 3000
   },
   vite: {
     server: {
-      host: true,
-      allowedHosts: [
-        'alarm-shop-astro.preview.emergentagent.com',
-        '.preview.emergentagent.com',
-        'localhost',
-        '127.0.0.1'
-      ]
+      host: '0.0.0.0',
+      port: 3000,
+      allowedHosts: 'all'
     }
   },
   output: 'static'
