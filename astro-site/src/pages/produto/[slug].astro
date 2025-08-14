@@ -1,0 +1,167 @@
+---
+import Layout from '../../components/Layout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import { fetchProducts } from '../../lib/wordpress';
+
+export async function getStaticPaths() {
+  const products = await fetchProducts();
+  return products.map(product => ({
+    params: { slug: product.slug },
+    props: { product }
+  }));
+}
+
+const { product } = Astro.props;
+---
+
+<Layout 
+  title={`${product.name} - AlarmeCenter`}
+  description={product.description || `Compre ${product.name} com o melhor preço e qualidade na AlarmeCenter.`}
+>
+  <Header />
+  
+  <!-- Breadcrumb -->
+  <section class="bg-gray-50 py-4">
+    <div class="container mx-auto px-4">
+      <nav class="text-sm">
+        <a href="/" class="text-gray-500 hover:text-red-600">Home</a>
+        <span class="text-gray-400 mx-2">></span>
+        <a href="/loja" class="text-gray-500 hover:text-red-600">Loja</a>
+        <span class="text-gray-400 mx-2">></span>
+        <span class="text-gray-800">{product.name}</span>
+      </nav>
+    </div>
+  </section>
+
+  <!-- Product Details -->
+  <section class="py-12">
+    <div class="container mx-auto px-4">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+        <!-- Product Images -->
+        <div class="space-y-4">
+          <div class="aspect-square bg-gray-100 rounded-lg overflow-hidden">
+            <img 
+              src={product.image.sourceUrl || '/placeholder-product.jpg'} 
+              alt={product.image.altText || product.name}
+              class="w-full h-full object-cover"
+            />
+          </div>
+          
+          <!-- Thumbnail Gallery -->
+          <div class="grid grid-cols-4 gap-2">
+            {[1,2,3,4].map(i => (
+              <div class="aspect-square bg-gray-100 rounded-lg overflow-hidden cursor-pointer hover:ring-2 hover:ring-red-500 transition-all">
+                <img 
+                  src={product.image.sourceUrl || '/placeholder-product.jpg'} 
+                  alt={`${product.name} - Imagem ${i}`}
+                  class="w-full h-full object-cover"
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <!-- Product Info -->
+        <div class="space-y-6">
+          <div>
+            <h1 class="text-3xl font-bold text-gray-800 mb-4">{product.name}</h1>
+            
+            <!-- Rating -->
+            <div class="flex items-center space-x-2 mb-4">
+              <div class="flex text-yellow-400">
+                ⭐⭐⭐⭐⭐
+              </div>
+              <span class="text-gray-500 text-sm">(0 avaliações)</span>
+            </div>
+
+            <!-- Price -->
+            <div class="mb-6">
+              <div class="text-3xl font-bold text-red-600 mb-2">{product.price}</div>
+              {product.regularPrice && product.salePrice && product.salePrice !== product.regularPrice && (
+                <div class="text-lg text-gray-500 line-through">{product.regularPrice}</div>
+              )}
+              <div class="text-sm text-gray-600 mt-2">
+                SKU: {product.id}
+              </div>
+            </div>
+          </div>
+
+          <!-- Description -->
+          <div class="border-t pt-6">
+            <h3 class="text-lg font-semibold mb-3">Descrição do Produto</h3>
+            <p class="text-gray-700 leading-relaxed">
+              {product.description || 'Produto de alta qualidade da AlarmeCenter. Entre em contato para mais informações sobre especificações técnicas e garantia.'}
+            </p>
+          </div>
+
+          <!-- Features -->
+          <div class="border-t pt-6">
+            <h3 class="text-lg font-semibold mb-3">Características</h3>
+            <ul class="space-y-2 text-gray-700">
+              <li class="flex items-center space-x-2">
+                <span class="text-green-500">✓</span>
+                <span>Garantia de 12 meses</span>
+              </li>
+              <li class="flex items-center space-x-2">
+                <span class="text-green-500">✓</span>
+                <span>Suporte técnico especializado</span>
+              </li>
+              <li class="flex items-center space-x-2">
+                <span class="text-green-500">✓</span>
+                <span>Entrega para todo o Brasil</span>
+              </li>
+              <li class="flex items-center space-x-2">
+                <span class="text-green-500">✓</span>
+                <span>Instalação disponível</span>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Purchase Actions -->
+          <div class="border-t pt-6 space-y-4">
+            <!-- Quantity -->
+            <div class="flex items-center space-x-4">
+              <label class="font-medium">Quantidade:</label>
+              <div class="flex items-center border border-gray-300 rounded-lg">
+                <button class="px-3 py-2 text-gray-600 hover:bg-gray-100 transition-colors">-</button>
+                <input type="number" value="1" min="1" class="w-16 text-center py-2 border-0 focus:ring-0" />
+                <button class="px-3 py-2 text-gray-600 hover:bg-gray-100 transition-colors">+</button>
+              </div>
+            </div>
+
+            <!-- Buttons -->
+            <div class="space-y-3">
+              <button class="w-full bg-red-600 hover:bg-red-700 text-white py-3 rounded-lg font-semibold text-lg transition-colors">
+                Adicionar ao Carrinho
+              </button>
+              
+              <div class="grid grid-cols-2 gap-3">
+                <button class="bg-gray-100 hover:bg-gray-200 text-gray-700 py-2 rounded-lg font-medium transition-colors">
+                  ❤️ Favoritos
+                </button>
+                <button class="bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg font-medium transition-colors">
+                  💬 WhatsApp
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Payment Methods -->
+          <div class="border-t pt-6">
+            <h3 class="text-lg font-semibold mb-3">Formas de Pagamento</h3>
+            <div class="flex space-x-3 text-2xl">
+              <span title="PIX">🏦</span>
+              <span title="Cartão de Crédito">💳</span>
+              <span title="Cartão de Débito">💳</span>
+              <span title="Boleto">📋</span>
+              <span title="Transferência">💰</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <Footer />
+</Layout>

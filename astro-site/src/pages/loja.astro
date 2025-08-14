@@ -1,0 +1,86 @@
+---
+import Layout from '../components/Layout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import ProductCard from '../components/ProductCard.astro';
+import { fetchProducts, fetchProductCategories } from '../lib/wordpress';
+
+// Fetch products and categories
+const products = await fetchProducts();
+const categories = await fetchProductCategories();
+---
+
+<Layout title="Loja - AlarmeCenter" description="Confira todos os nossos produtos de segurança eletrônica, alarmes, câmeras, cerca elétrica e controle de acesso.">
+  <Header />
+  
+  <!-- Page Header -->
+  <section class="bg-gray-100 py-12">
+    <div class="container mx-auto px-4">
+      <div class="text-center">
+        <h1 class="text-4xl font-bold text-gray-800 mb-4">Nossa Loja</h1>
+        <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+          Explore todos os nossos produtos de segurança eletrônica com os melhores preços e qualidade garantida
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Filter Section -->
+  <section class="py-8 bg-white border-b">
+    <div class="container mx-auto px-4">
+      <div class="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+        <!-- Categories Filter -->
+        <div class="flex flex-wrap gap-2">
+          <button class="px-4 py-2 bg-red-600 text-white rounded-lg font-medium">
+            Todos
+          </button>
+          {categories.slice(0, 6).map(category => (
+            <button class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-medium transition-colors">
+              {category.name}
+            </button>
+          ))}
+        </div>
+
+        <!-- Sort -->
+        <div class="flex items-center space-x-4">
+          <label class="text-sm font-medium text-gray-700">Ordenar por:</label>
+          <select class="border border-gray-300 rounded-lg px-3 py-2 text-sm">
+            <option>Popularidade</option>
+            <option>Menor preço</option>
+            <option>Maior preço</option>
+            <option>Mais recentes</option>
+            <option>Nome A-Z</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Products Grid -->
+  <section class="py-12">
+    <div class="container mx-auto px-4">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        {products.map((product) => (
+          <ProductCard product={product} />
+        ))}
+      </div>
+
+      <!-- Pagination -->
+      <div class="flex justify-center mt-12">
+        <nav class="flex items-center space-x-2">
+          <button class="px-3 py-2 border border-gray-300 rounded-lg text-gray-500 hover:bg-gray-50 transition-colors">
+            ← Anterior
+          </button>
+          <button class="px-3 py-2 bg-red-600 text-white rounded-lg">1</button>
+          <button class="px-3 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">2</button>
+          <button class="px-3 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">3</button>
+          <button class="px-3 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-red-600 hover:text-white transition-colors">
+            Próximo →
+          </button>
+        </nav>
+      </div>
+    </div>
+  </section>
+
+  <Footer />
+</Layout>

@@ -1,0 +1,64 @@
+---
+import Layout from '../../components/Layout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import ProductCard from '../../components/ProductCard.astro';
+import { fetchProducts, mockCategories } from '../../lib/wordpress';
+
+export async function getStaticPaths() {
+  return mockCategories.map(category => ({
+    params: { slug: category.slug },
+    props: { category }
+  }));
+}
+
+const { category } = Astro.props;
+const products = await fetchProducts();
+// In a real implementation, you'd filter products by category
+const categoryProducts = products.slice(0, 6);
+---
+
+<Layout 
+  title={`${category.name} - AlarmeCenter`} 
+  description={`Produtos de ${category.name.toLowerCase()}: ${category.description}`}
+>
+  <Header />
+  
+  <!-- Category Header -->
+  <section class="bg-gray-100 py-12">
+    <div class="container mx-auto px-4">
+      <div class="text-center">
+        <h1 class="text-4xl font-bold text-gray-800 mb-4">{category.name}</h1>
+        <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+          {category.description}
+        </p>
+        <div class="mt-4">
+          <span class="inline-block bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm font-medium">
+            {category.count} produtos disponíveis
+          </span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Products Grid -->
+  <section class="py-12">
+    <div class="container mx-auto px-4">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        {categoryProducts.map((product) => (
+          <ProductCard product={product} />
+        ))}
+      </div>
+      
+      {categoryProducts.length === 0 && (
+        <div class="text-center py-12">
+          <div class="text-6xl mb-4">📦</div>
+          <h3 class="text-xl font-semibold text-gray-800 mb-2">Nenhum produto encontrado</h3>
+          <p class="text-gray-600">Estamos trabalhando para adicionar produtos nesta categoria.</p>
+        </div>
+      )}
+    </div>
+  </section>
+
+  <Footer />
+</Layout>

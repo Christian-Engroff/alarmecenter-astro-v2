@@ -1,0 +1,221 @@
+---
+import Layout from '../components/Layout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+---
+
+<Layout title="Contato - AlarmeCenter" description="Entre em contato conosco para tirar dúvidas, solicitar orçamentos ou agendar instalações de sistemas de segurança.">
+  <Header />
+  
+  <!-- Page Header -->
+  <section class="bg-gray-100 py-12">
+    <div class="container mx-auto px-4">
+      <div class="text-center">
+        <h1 class="text-4xl font-bold text-gray-800 mb-4">Fale Conosco</h1>
+        <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+          Entre em contato conosco para tirar dúvidas, solicitar orçamentos ou agendar instalações
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact Content -->
+  <section class="py-16">
+    <div class="container mx-auto px-4">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+        <!-- Contact Form -->
+        <div class="bg-white rounded-xl shadow-lg p-8">
+          <h2 class="text-2xl font-bold text-gray-800 mb-6">Envie sua Mensagem</h2>
+          
+          <form class="space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label for="nome" class="block text-sm font-medium text-gray-700 mb-2">
+                  Nome Completo *
+                </label>
+                <input 
+                  type="text" 
+                  id="nome" 
+                  name="nome" 
+                  required
+                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-colors"
+                  placeholder="Seu nome completo"
+                />
+              </div>
+              
+              <div>
+                <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
+                  E-mail *
+                </label>
+                <input 
+                  type="email" 
+                  id="email" 
+                  name="email" 
+                  required
+                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-colors"
+                  placeholder="seu@email.com"
+                />
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label for="telefone" class="block text-sm font-medium text-gray-700 mb-2">
+                  Telefone *
+                </label>
+                <input 
+                  type="tel" 
+                  id="telefone" 
+                  name="telefone" 
+                  required
+                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-colors"
+                  placeholder="(41) 99999-8888"
+                />
+              </div>
+              
+              <div>
+                <label for="assunto" class="block text-sm font-medium text-gray-700 mb-2">
+                  Assunto
+                </label>
+                <select 
+                  id="assunto" 
+                  name="assunto"
+                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-colors"
+                >
+                  <option value="">Selecione um assunto</option>
+                  <option value="orcamento">Solicitar Orçamento</option>
+                  <option value="instalacao">Agendar Instalação</option>
+                  <option value="suporte">Suporte Técnico</option>
+                  <option value="duvida">Dúvida sobre Produto</option>
+                  <option value="reclamacao">Reclamação</option>
+                  <option value="outros">Outros</option>
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label for="mensagem" class="block text-sm font-medium text-gray-700 mb-2">
+                Mensagem *
+              </label>
+              <textarea 
+                id="mensagem" 
+                name="mensagem" 
+                rows="5"
+                required
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-colors resize-none"
+                placeholder="Descreva sua necessidade, dúvida ou solicitação..."
+              ></textarea>
+            </div>
+
+            <button 
+              type="submit"
+              class="w-full bg-red-600 hover:bg-red-700 text-white py-3 rounded-lg font-semibold text-lg transition-colors"
+            >
+              Enviar Mensagem
+            </button>
+          </form>
+        </div>
+
+        <!-- Contact Info -->
+        <div class="space-y-8">
+          <!-- Company Info -->
+          <div class="bg-white rounded-xl shadow-lg p-8">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6">Informações de Contato</h2>
+            
+            <div class="space-y-6">
+              <div class="flex items-start space-x-4">
+                <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                  📍
+                </div>
+                <div>
+                  <h3 class="font-semibold text-gray-800 mb-1">Endereço</h3>
+                  <p class="text-gray-600">
+                    Rua das Flores, 123<br>
+                    Centro - Curitiba/PR<br>
+                    CEP: 80010-000
+                  </p>
+                </div>
+              </div>
+
+              <div class="flex items-start space-x-4">
+                <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                  📞
+                </div>
+                <div>
+                  <h3 class="font-semibold text-gray-800 mb-1">Telefones</h3>
+                  <p class="text-gray-600">
+                    (41) 3333-4444<br>
+                    (41) 99999-8888
+                  </p>
+                </div>
+              </div>
+
+              <div class="flex items-start space-x-4">
+                <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                  ✉️
+                </div>
+                <div>
+                  <h3 class="font-semibold text-gray-800 mb-1">E-mails</h3>
+                  <p class="text-gray-600">
+                    contato@alarmecenter.com.br<br>
+                    vendas@alarmecenter.com.br
+                  </p>
+                </div>
+              </div>
+
+              <div class="flex items-start space-x-4">
+                <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                  🕒
+                </div>
+                <div>
+                  <h3 class="font-semibold text-gray-800 mb-1">Horário de Funcionamento</h3>
+                  <p class="text-gray-600">
+                    Segunda a Sexta: 8h às 18h<br>
+                    Sábado: 8h às 12h<br>
+                    Domingo: Fechado
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Contact -->
+          <div class="bg-red-600 rounded-xl shadow-lg p-8 text-white">
+            <h2 class="text-2xl font-bold mb-4">Atendimento Rápido</h2>
+            <p class="mb-6 text-red-100">
+              Precisa de atendimento imediato? Entre em contato via WhatsApp
+            </p>
+            
+            <a 
+              href="https://wa.me/5541999998888" 
+              target="_blank"
+              class="inline-flex items-center space-x-2 bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
+            >
+              <span>💬</span>
+              <span>WhatsApp</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Map Section -->
+  <section class="py-16 bg-gray-50">
+    <div class="container mx-auto px-4">
+      <h2 class="text-3xl font-bold text-center text-gray-800 mb-8">Nossa Localização</h2>
+      
+      <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+        <div class="h-96 bg-gray-200 flex items-center justify-center">
+          <div class="text-center text-gray-500">
+            <div class="text-4xl mb-4">🗺️</div>
+            <p>Mapa em desenvolvimento</p>
+            <p class="text-sm mt-2">Rua das Flores, 123 - Centro, Curitiba/PR</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <Footer />
+</Layout>
