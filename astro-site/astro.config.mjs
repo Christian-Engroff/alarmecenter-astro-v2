@@ -11,24 +11,40 @@ export default defineConfig({
   ],
   server: {
     host: '0.0.0.0',
-    port: 3000,
-    headers: {
-      'Access-Control-Allow-Origin': '*'
-    }
+    port: 3000
   },
   vite: {
     server: {
       host: '0.0.0.0',
       port: 3000,
       strictPort: false,
-      allowedHosts: 'all',
-      disableHostCheck: true,
-      headers: {
-        'Access-Control-Allow-Origin': '*'
-      }
+      open: false,
+      cors: true,
+      allowedHosts: [
+        'all',
+        'alarm-shop-astro.preview.emergentagent.com',
+        '*.preview.emergentagent.com',
+        '*.emergentagent.com',
+        'localhost',
+        '127.0.0.1',
+        '0.0.0.0'
+      ]
     },
-    define: {
-      global: 'globalThis'
+    preview: {
+      host: '0.0.0.0',
+      port: 3000,
+      strictPort: false,
+      open: false,
+      cors: true,
+      allowedHosts: [
+        'all',
+        'alarm-shop-astro.preview.emergentagent.com',
+        '*.preview.emergentagent.com',
+        '*.emergentagent.com',
+        'localhost',
+        '127.0.0.1',
+        '0.0.0.0'
+      ]
     }
   },
   output: 'static'
