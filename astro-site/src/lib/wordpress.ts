@@ -14,59 +14,82 @@ export const graphqlClient = new GraphQLClient(endpoint, {
   },
 });
 
-// GraphQL Queries - Updated for WooCommerce
+// GraphQL Queries - Updated for WooCommerce with correct fragments
 export const GET_PRODUCTS = `
   query GetProducts($first: Int = 50) {
     products(first: $first) {
       nodes {
-        id
-        databaseId
-        name
-        slug
-        description
-        shortDescription
-        image {
-          sourceUrl
-          altText
-        }
-        galleryImages {
-          nodes {
-            sourceUrl
-            altText
-          }
-        }
         ... on SimpleProduct {
+          id
+          databaseId
+          name
+          slug
+          description
+          shortDescription
           price
           regularPrice
           salePrice
           stockStatus
           stockQuantity
+          sku
+          status
+          catalogVisibility
+          featured
+          onSale
+          image {
+            sourceUrl
+            altText
+          }
+          galleryImages {
+            nodes {
+              sourceUrl
+              altText
+            }
+          }
+          productCategories {
+            nodes {
+              id
+              name
+              slug
+              description
+            }
+          }
+          productTags {
+            nodes {
+              name
+              slug
+            }
+          }
         }
         ... on VariableProduct {
+          id
+          databaseId
+          name
+          slug
+          description
+          shortDescription
           price
           regularPrice
           salePrice
           stockStatus
-        }
-        productCategories {
-          nodes {
-            id
-            name
-            slug
-            description
+          sku
+          status
+          catalogVisibility
+          featured
+          onSale
+          image {
+            sourceUrl
+            altText
+          }
+          productCategories {
+            nodes {
+              id
+              name
+              slug
+              description
+            }
           }
         }
-        productTags {
-          nodes {
-            name
-            slug
-          }
-        }
-        sku
-        status
-        catalogVisibility
-        featured
-        onSale
       }
     }
   }
