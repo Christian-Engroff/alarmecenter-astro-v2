@@ -131,55 +131,82 @@ export const GET_PRODUCT_CATEGORIES = `
 export const GET_SINGLE_PRODUCT = `
   query GetSingleProduct($slug: String!) {
     product(id: $slug, idType: SLUG) {
-      id
-      databaseId
-      name
-      slug
-      description
-      shortDescription
-      image {
-        sourceUrl
-        altText
-      }
-      galleryImages {
-        nodes {
-          sourceUrl
-          altText
-        }
-      }
       ... on SimpleProduct {
+        id
+        databaseId
+        name
+        slug
+        description
+        shortDescription
         price
         regularPrice
         salePrice
         stockStatus
         stockQuantity
-      }
-      productCategories {
-        nodes {
-          id
-          name
-          slug
+        sku
+        status
+        featured
+        onSale
+        image {
+          sourceUrl
+          altText
         }
-      }
-      sku
-      status
-      featured
-      onSale
-      reviews {
-        averageRating
-        reviewCount
-      }
-      related {
-        nodes {
-          id
-          name
-          slug
-          image {
+        galleryImages {
+          nodes {
             sourceUrl
             altText
           }
-          ... on SimpleProduct {
-            price
+        }
+        productCategories {
+          nodes {
+            id
+            name
+            slug
+          }
+        }
+        reviews {
+          averageRating
+          reviewCount
+        }
+        related {
+          nodes {
+            ... on SimpleProduct {
+              id
+              name
+              slug
+              price
+              image {
+                sourceUrl
+                altText
+              }
+            }
+          }
+        }
+      }
+      ... on VariableProduct {
+        id
+        databaseId
+        name
+        slug
+        description
+        shortDescription
+        price
+        regularPrice
+        salePrice
+        stockStatus
+        sku
+        status
+        featured
+        onSale
+        image {
+          sourceUrl
+          altText
+        }
+        productCategories {
+          nodes {
+            id
+            name
+            slug
           }
         }
       }
