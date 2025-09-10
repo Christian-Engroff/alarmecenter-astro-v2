@@ -1,161 +1,118 @@
 ---
 import Layout from '../components/Layout.astro';
-import Header from '../components/Header.astro';
-import Footer from '../components/Footer.astro';
-import HeroSlider from '../components/HeroSlider.astro';
-import FeaturedCategories from '../components/FeaturedCategories.astro';
-import ProductCard from '../components/ProductCard.astro';
-import { fetchProducts } from '../lib/wordpress';
+import { fetchProducts, fetchProductCategories } from '../lib/wordpress';
 
-// Fetch products for featured section
-const products = await fetchProducts();
-const featuredProducts = products.slice(0, 8);
+// Test API connection
+let products = [];
+let categories = [];
+let apiStatus = 'disconnected';
+
+try {
+  products = await fetchProducts();
+  categories = await fetchProductCategories();
+  apiStatus = 'connected';
+} catch (error) {
+  console.error('API Error:', error);
+  apiStatus = 'error';
+}
 ---
 
 <Layout 
-  title="AlarmeCenter - Segurança com tecnologia" 
-  description="Sistemas de alarme e segurança eletrônica, venda e instalação de câmeras, alarme, cerca elétrica, controle de acesso, motor e rede logica."
+  title="AlarmeCenter - Teste de Conexão"
+  description="Teste da base do projeto Astro + WordPress"
 >
-  <Header />
-  
-  <!-- Hero Slider -->
-  <HeroSlider />
+  <div class="min-h-screen bg-gray-50">
+    <!-- Header Simples -->
+    <header class="bg-white shadow-sm">
+      <div class="container mx-auto px-4 py-6">
+        <h1 class="text-3xl font-bold text-brand-primary">
+          🚀 AlarmeCenter - Base Astro
+        </h1>
+        <p class="text-gray-600 mt-2">Teste de conexão com WordPress GraphQL</p>
+      </div>
+    </header>
 
-  <!-- Promotional Banners -->
-  <section class="py-8 bg-white">
-    <div class="container mx-auto px-4">
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <!-- Banner 1 - Bateria Alarme -->
-        <div class="relative bg-gradient-to-r from-red-500 to-red-600 rounded-lg overflow-hidden group cursor-pointer">
-          <div class="p-8 text-white">
-            <div class="flex items-center space-x-4">
-              <div class="flex-shrink-0">
-                <img 
-                  src="https://alarmecenter.com/wp-content/uploads/2021/05/bateria-moura-12v-7ah-150x150.jpg" 
-                  alt="Bateria de alarme" 
-                  class="w-20 h-20 object-cover rounded-lg"
-                />
-              </div>
-              <div class="flex-1">
-                <h3 class="text-xl font-bold mb-2">
-                  Bateria de <strong>alarme</strong> em<br>
-                  promoção
-                </h3>
-                <p class="text-2xl font-bold">Pix R$ 91,30</p>
-              </div>
+    <!-- Status da API -->
+    <section class="container mx-auto px-4 py-8">
+      <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+        <h2 class="text-xl font-semibold mb-4">🔍 Status da Conexão</h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <!-- API Status -->
+          <div class="text-center p-4 rounded-lg border">
+            <div class={`text-2xl mb-2 ${apiStatus === 'connected' ? 'text-green-500' : 'text-red-500'}`}>
+              {apiStatus === 'connected' ? '✅' : '❌'}
             </div>
+            <h3 class="font-semibold">API WordPress</h3>
+            <p class="text-sm text-gray-600 capitalize">{apiStatus}</p>
           </div>
-          <div class="absolute inset-0 bg-black opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
-        </div>
 
-        <!-- Banner 2 - Bateria Nobreak -->
-        <div class="relative bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg overflow-hidden group cursor-pointer">
-          <div class="p-8 text-white">
-            <div class="flex items-center space-x-4">
-              <div class="flex-shrink-0">
+          <!-- Products Count -->
+          <div class="text-center p-4 rounded-lg border">
+            <div class="text-2xl mb-2 text-blue-500">📦</div>
+            <h3 class="font-semibold">Produtos</h3>
+            <p class="text-sm text-gray-600">{products.length} encontrados</p>
+          </div>
+
+          <!-- Categories Count -->
+          <div class="text-center p-4 rounded-lg border">
+            <div class="text-2xl mb-2 text-purple-500">🏷️</div>
+            <h3 class="font-semibold">Categorias</h3>
+            <p class="text-sm text-gray-600">{categories.length} encontradas</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Products Preview -->
+      {products.length > 0 && (
+        <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+          <h2 class="text-xl font-semibold mb-4">🛍️ Produtos (Preview)</h2>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {products.slice(0, 3).map(product => (
+              <div class="border rounded-lg p-4" key={product.id}>
                 <img 
-                  src="https://alarmecenter.com/wp-content/uploads/2021/05/bateria-moura-12v-7ah-150x150.jpg" 
-                  alt="Bateria de nobreak" 
-                  class="w-20 h-20 object-cover rounded-lg"
+                  src={product.image?.sourceUrl || '/placeholder-product.svg'}
+                 // /* src={product.image.sourceUrl} */
+                  alt={product.name}
+                  class="w-full h-32 object-cover rounded mb-3"
+                  onerror="this.src='/placeholder-product.svg'"
                 />
+                <h3 class="font-semibold text-sm mb-2">{product.name}</h3>
+                <p class="text-brand-primary font-bold">{product.price}</p>
+                <p class="text-xs text-gray-500">SKU: {product.sku || 'N/A'}</p>
               </div>
-              <div class="flex-1">
-                <h3 class="text-xl font-bold mb-2">
-                  Bateria de <strong>Nobreak</strong> em<br>
-                  promoção
-                </h3>
-                <p class="text-2xl font-bold">Pix R$ 125,69</p>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <!-- Categories Preview -->
+      {categories.length > 0 && (
+        <div class="bg-white rounded-lg shadow-md p-6">
+          <h2 class="text-xl font-semibold mb-4">📋 Categorias (Preview)</h2>
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {categories.slice(0, 8).map(category => (
+              <div class="border rounded-lg p-3 text-center">
+                <h4 class="font-medium text-sm">{category.name}</h4>
+                <p class="text-xs text-gray-500">{category.count} produtos</p>
               </div>
-            </div>
-          </div>
-          <div class="absolute inset-0 bg-black opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Featured Categories -->
-  <FeaturedCategories />
-
-  <!-- Featured Products -->
-  <section class="py-16 bg-white">
-    <div class="container mx-auto px-4">
-      <!-- Section Header -->
-      <div class="text-center mb-12">
-        <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-4">
-          Produtos em Destaque
-        </h2>
-        <p class="text-lg text-gray-600 max-w-2xl mx-auto">
-          Confira nossa seleção de produtos mais vendidos e com melhor avaliação
-        </p>
-      </div>
-
-      <!-- Products Grid -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {featuredProducts.map((product) => (
-          <ProductCard product={product} />
-        ))}
-      </div>
-
-      <!-- View More Button -->
-      <div class="text-center mt-12">
-        <a 
-          href="/loja" 
-          class="inline-block bg-red-600 hover:bg-red-700 text-white px-8 py-3 rounded-lg font-semibold text-lg transition-all transform hover:scale-105"
-        >
-          Ver Mais Produtos
-        </a>
-      </div>
-    </div>
-  </section>
-
-  <!-- Trust Badges -->
-  <section class="py-12 bg-gray-50">
-    <div class="container mx-auto px-4">
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-8 text-center">
-        <div class="flex flex-col items-center space-y-4">
-          <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center text-green-600 text-2xl">
-            🚚
-          </div>
-          <div>
-            <h3 class="font-semibold text-gray-800">Entrega Rápida</h3>
-            <p class="text-sm text-gray-600">Para todo o Brasil</p>
+            ))}
           </div>
         </div>
-        
-        <div class="flex flex-col items-center space-y-4">
-          <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 text-2xl">
-            🔒
-          </div>
-          <div>
-            <h3 class="font-semibold text-gray-800">Compra Segura</h3>
-            <p class="text-sm text-gray-600">SSL e dados protegidos</p>
-          </div>
-        </div>
-        
-        <div class="flex flex-col items-center space-y-4">
-          <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center text-purple-600 text-2xl">
-            💳
-          </div>
-          <div>
-            <h3 class="font-semibold text-gray-800">Várias Formas de Pagamento</h3>
-            <p class="text-sm text-gray-600">PIX, cartão, boleto</p>
-          </div>
-        </div>
-        
-        <div class="flex flex-col items-center space-y-4">
-          <div class="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center text-orange-600 text-2xl">
-            🎧
-          </div>
-          <div>
-            <h3 class="font-semibold text-gray-800">Suporte Especializado</h3>
-            <p class="text-sm text-gray-600">Atendimento técnico</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
+      )}
 
-  <Footer />
+      <!-- Debug Info -->
+      <div class="mt-8 bg-gray-100 rounded-lg p-4">
+        <details>
+          <summary class="cursor-pointer font-semibold">🔧 Debug Info</summary>
+          <div class="mt-4 text-sm">
+            <p><strong>Endpoint:</strong> {import.meta.env.WORDPRESS_API_URL}</p>
+            <p><strong>Products Found:</strong> {products.length}</p>
+            <p><strong>Categories Found:</strong> {categories.length}</p>
+            <p><strong>Build Time:</strong> {new Date().toLocaleString('pt-BR')}</p>
+          </div>
+        </details>
+      </div>
+    </section>
+  </div>
 </Layout>
-

@@ -1,0 +1,161 @@
+---
+import Layout from '../components/Layout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import HeroSlider from '../components/HeroSlider.astro';
+import FeaturedCategories from '../components/FeaturedCategories.astro';
+import ProductCard from '../components/ProductCard.astro';
+import { fetchProducts } from '../lib/wordpress';
+
+// Fetch products for featured section
+const products = await fetchProducts();
+const featuredProducts = products.slice(0, 8);
+---
+
+<Layout 
+  title="AlarmeCenter - Segurança com tecnologia" 
+  description="Sistemas de alarme e segurança eletrônica, venda e instalação de câmeras, alarme, cerca elétrica, controle de acesso, motor e rede logica."
+>
+  <Header />
+  
+  <!-- Hero Slider -->
+  <HeroSlider />
+
+  <!-- Promotional Banners -->
+  <section class="py-8 bg-white">
+    <div class="container mx-auto px-4">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Banner 1 - Bateria Alarme -->
+        <div class="relative bg-gradient-to-r from-red-500 to-red-600 rounded-lg overflow-hidden group cursor-pointer">
+          <div class="p-8 text-white">
+            <div class="flex items-center space-x-4">
+              <div class="flex-shrink-0">
+                <img 
+                  src="https://alarmecenter.com/wp-content/uploads/2021/05/bateria-moura-12v-7ah-150x150.jpg" 
+                  alt="Bateria de alarme" 
+                  class="w-20 h-20 object-cover rounded-lg"
+                />
+              </div>
+              <div class="flex-1">
+                <h3 class="text-xl font-bold mb-2">
+                  Bateria de <strong>alarme</strong> em<br>
+                  promoção
+                </h3>
+                <p class="text-2xl font-bold">Pix R$ 91,30</p>
+              </div>
+            </div>
+          </div>
+          <div class="absolute inset-0 bg-black opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
+        </div>
+
+        <!-- Banner 2 - Bateria Nobreak -->
+        <div class="relative bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg overflow-hidden group cursor-pointer">
+          <div class="p-8 text-white">
+            <div class="flex items-center space-x-4">
+              <div class="flex-shrink-0">
+                <img 
+                  src="https://alarmecenter.com/wp-content/uploads/2021/05/bateria-moura-12v-7ah-150x150.jpg" 
+                  alt="Bateria de nobreak" 
+                  class="w-20 h-20 object-cover rounded-lg"
+                />
+              </div>
+              <div class="flex-1">
+                <h3 class="text-xl font-bold mb-2">
+                  Bateria de <strong>Nobreak</strong> em<br>
+                  promoção
+                </h3>
+                <p class="text-2xl font-bold">Pix R$ 125,69</p>
+              </div>
+            </div>
+          </div>
+          <div class="absolute inset-0 bg-black opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Featured Categories -->
+  <FeaturedCategories />
+
+  <!-- Featured Products -->
+  <section class="py-16 bg-white">
+    <div class="container mx-auto px-4">
+      <!-- Section Header -->
+      <div class="text-center mb-12">
+        <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-4">
+          Produtos em Destaque
+        </h2>
+        <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+          Confira nossa seleção de produtos mais vendidos e com melhor avaliação
+        </p>
+      </div>
+
+      <!-- Products Grid -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        {featuredProducts.map((product) => (
+          <ProductCard product={product} />
+        ))}
+      </div>
+
+      <!-- View More Button -->
+      <div class="text-center mt-12">
+        <a 
+          href="/loja" 
+          class="inline-block bg-red-600 hover:bg-red-700 text-white px-8 py-3 rounded-lg font-semibold text-lg transition-all transform hover:scale-105"
+        >
+          Ver Mais Produtos
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Trust Badges -->
+  <section class="py-12 bg-gray-50">
+    <div class="container mx-auto px-4">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8 text-center">
+        <div class="flex flex-col items-center space-y-4">
+          <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center text-green-600 text-2xl">
+            🚚
+          </div>
+          <div>
+            <h3 class="font-semibold text-gray-800">Entrega Rápida</h3>
+            <p class="text-sm text-gray-600">Para todo o Brasil</p>
+          </div>
+        </div>
+        
+        <div class="flex flex-col items-center space-y-4">
+          <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 text-2xl">
+            🔒
+          </div>
+          <div>
+            <h3 class="font-semibold text-gray-800">Compra Segura</h3>
+            <p class="text-sm text-gray-600">SSL e dados protegidos</p>
+          </div>
+        </div>
+        
+        <div class="flex flex-col items-center space-y-4">
+          <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center text-purple-600 text-2xl">
+            💳
+          </div>
+          <div>
+            <h3 class="font-semibold text-gray-800">Várias Formas de Pagamento</h3>
+            <p class="text-sm text-gray-600">PIX, cartão, boleto</p>
+          </div>
+        </div>
+        
+        <div class="flex flex-col items-center space-y-4">
+          <div class="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center text-orange-600 text-2xl">
+            🎧
+          </div>
+          <div>
+            <h3 class="font-semibold text-gray-800">Suporte Especializado</h3>
+            <p class="text-sm text-gray-600">Atendimento técnico</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <Footer />
+</Layout>
+

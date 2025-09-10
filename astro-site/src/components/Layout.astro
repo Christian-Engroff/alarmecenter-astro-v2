@@ -1,81 +1,192 @@
 ---
+import '../styles/global.css';
+
 export interface Props {
   title: string;
   description?: string;
-  lang?: string;
+  canonicalURL?: string;
+  ogImage?: string;
 }
 
-const { title, description = "Sistemas de alarme e segurança eletrônica, venda e instalação de câmeras, alarme, cerca elétrica, controle de acesso, motor e rede logica.", lang = "pt-BR" } = Astro.props;
+const { 
+  title, 
+  description = import.meta.env.SITE_DESCRIPTION,
+  canonicalURL = Astro.url.href,
+  ogImage = `${import.meta.env.SITE_URL}/og-image.jpg`
+} = Astro.props;
+
+const siteName = import.meta.env.SITE_NAME;
+const siteUrl = import.meta.env.SITE_URL;
 ---
 
 <!DOCTYPE html>
-<html lang={lang} class="pt-br">
+<html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
     <meta name="description" content={description} />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="generator" content={Astro.generator} />
-    <title>{title}</title>
     
+    <!-- Primary Meta Tags -->
+    <title>{title}</title>
+    <meta name="title" content={title} />
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalURL} />
+
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
-    <meta property="og:url" content={Astro.url} />
+    <meta property="og:url" content={canonicalURL} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
-    
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:site_name" content={siteName} />
+    <meta property="og:locale" content="pt_BR" />
+
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image" />
-    <meta property="twitter:url" content={Astro.url} />
+    <meta property="twitter:url" content={canonicalURL} />
     <meta property="twitter:title" content={title} />
     <meta property="twitter:description" content={description} />
+    <meta property="twitter:image" content={ogImage} />
+
+    <!-- Additional SEO -->
+    <meta name="robots" content="index, follow" />
+    <meta name="googlebot" content="index, follow" />
+    <meta name="author" content="AlarmeCenter" />
+    <meta name="language" content="Portuguese" />
+    <meta name="geo.region" content="BR-PR" />
+    <meta name="geo.placename" content="Curitiba" />
     
-    <!-- Preload critical fonts -->
+    <!-- Preload critical resources -->
     <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap" as="style" />
+    <link rel="preconnect" href="https://wp.alarmecenter.com.br" />
+    
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "LocalBusiness",
+        "name": "AlarmeCenter",
+        "image": "https://alarmecenter.com.br/logo.png",
+        "description": "Sistemas de alarme e segurança eletrônica",
+        "address": {
+          "@type": "PostalAddress",
+          "addressLocality": "Curitiba",
+          "addressRegion": "PR",
+          "addressCountry": "BR"
+        },
+        "telephone": "+5541999998888",
+        "email": "contato@alarmecenter.com.br",
+        "url": "https://alarmecenter.com.br",
+        "sameAs": [
+          "https://www.facebook.com/alarmecenter",
+          "https://www.instagram.com/alarmecenter"
+        ]
+      }
+    </script>
   </head>
   <body>
     <slot />
     
-    <!-- JavaScript for mobile menu and interactions -->
-    <script>
-      // Mobile menu toggle
-      document.addEventListener('DOMContentLoaded', function() {
-        const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
-        const mobileMenu = document.querySelector('.mobile-menu');
-        const mobileMenuClose = document.querySelector('.mobile-menu-close');
-        
-        if (mobileMenuBtn && mobileMenu) {
-          mobileMenuBtn.addEventListener('click', function() {
-            mobileMenu.classList.add('active');
-          });
+    <!-- Global Scripts -->
+    <script is:inline>
+      // Cart Management
+      class CartManager {
+        constructor() {
+          this.cart = JSON.parse(localStorage.getItem('cart') || '[]');
+          this.updateCartDisplay();
         }
-        
-        if (mobileMenuClose && mobileMenu) {
-          mobileMenuClose.addEventListener('click', function() {
-            mobileMenu.classList.remove('active');
-          });
-        }
-        
-        // Close mobile menu when clicking outside
-        document.addEventListener('click', function(e) {
-          if (mobileMenu && !mobileMenu.contains(e.target) && !mobileMenuBtn?.contains(e.target)) {
-            mobileMenu.classList.remove('active');
+
+        addItem(product) {
+          const existingItem = this.cart.find(item => item.id === product.id);
+          
+          if (existingItem) {
+            existingItem.quantity += 1;
+          } else {
+            this.cart.push({ ...product, quantity: 1 });
           }
-        });
-        
-        // Theme toggle
-        const themeToggle = document.querySelector('#theme-toggle');
-        if (themeToggle) {
-          themeToggle.addEventListener('click', function() {
-            document.documentElement.classList.toggle('dark');
-            localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
-          });
+          
+          this.saveCart();
+          this.updateCartDisplay();
+          this.showNotification(`${product.name} adicionado ao carrinho!`);
         }
-        
-        // Load saved theme
-        const savedTheme = localStorage.getItem('theme');
-        if (savedTheme === 'dark') {
-          document.documentElement.classList.add('dark');
+
+        removeItem(productId) {
+          this.cart = this.cart.filter(item => item.id !== productId);
+          this.saveCart();
+          this.updateCartDisplay();
+        }
+
+        updateQuantity(productId, quantity) {
+          const item = this.cart.find(item => item.id === productId);
+          if (item) {
+            item.quantity = Math.max(1, quantity);
+            this.saveCart();
+            this.updateCartDisplay();
+          }
+        }
+
+        getTotal() {
+          return this.cart.reduce((sum, item) => {
+            const price = parseFloat(item.price.replace(/[^\d,]/g, '').replace(',', '.'));
+            return sum + (price * item.quantity);
+          }, 0);
+        }
+
+        saveCart() {
+          localStorage.setItem('cart', JSON.stringify(this.cart));
+        }
+
+        updateCartDisplay() {
+          const totalItems = this.cart.reduce((sum, item) => sum + item.quantity, 0);
+          const cartCountElements = document.querySelectorAll('.cart-count');
+          cartCountElements.forEach(el => el.textContent = totalItems);
+        }
+
+        showNotification(message) {
+          const notification = document.createElement('div');
+          notification.className = 'fixed top-4 right-4 bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg z-50 transform translate-x-full transition-transform duration-300';
+          notification.textContent = message;
+          
+          document.body.appendChild(notification);
+          
+          setTimeout(() => notification.classList.remove('translate-x-full'), 100);
+          setTimeout(() => {
+            notification.classList.add('translate-x-full');
+            setTimeout(() => document.body.removeChild(notification), 300);
+          }, 3000);
+        }
+      }
+
+      // Initialize cart manager
+      window.cartManager = new CartManager();
+
+      // Add to cart event listener
+      document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('add-to-cart-btn')) {
+          e.preventDefault();
+          
+          const button = e.target;
+          const product = {
+            id: button.dataset.productId,
+            name: button.dataset.productName,
+            price: button.dataset.productPrice,
+            image: button.dataset.productImage,
+            slug: button.dataset.productSlug
+          };
+          
+          window.cartManager.addItem(product);
+          
+          // Visual feedback
+          const originalText = button.innerHTML;
+          button.innerHTML = '✓ Adicionado!';
+          button.style.backgroundColor = '#16a34a';
+          
+          setTimeout(() => {
+            button.innerHTML = originalText;
+            button.style.backgroundColor = '';
+          }, 2000);
         }
       });
     </script>
