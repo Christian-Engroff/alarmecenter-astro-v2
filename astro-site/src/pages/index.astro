@@ -2,117 +2,1096 @@
 import Layout from '../components/Layout.astro';
 import { fetchProducts, fetchProductCategories } from '../lib/wordpress';
 
-// Test API connection
-let products = [];
-let categories = [];
-let apiStatus = 'disconnected';
+// Fetch data
+const [products, categories] = await Promise.all([
+  fetchProducts(),
+  fetchProductCategories()
+]);
 
-try {
-  products = await fetchProducts();
-  categories = await fetchProductCategories();
-  apiStatus = 'connected';
-} catch (error) {
-  console.error('API Error:', error);
-  apiStatus = 'error';
-}
+// Organize data
+const featuredProducts = products.filter(p => p.featured).slice(0, 8);
+const onSaleProducts = products.filter(p => p.onSale).slice(0, 4);
+const newProducts = products.slice(0, 4);
+const mainCategories = categories.slice(0, 6);
+
+// Hero products for slider
+const heroProducts = [
+  products.find(p => p.slug.includes('bateria')) || products[1],
+  products.find(p => p.slug.includes('camera')) || products[2]
+];
 ---
 
 <Layout 
-  title="AlarmeCenter - Teste de Conexão"
-  description="Teste da base do projeto Astro + WordPress"
+  title="AlarmeCenter - Segurança com Tecnologia | Alarmes, Câmeras e Cerca Elétrica"
+  description="Especialista em segurança eletrônica. Sistemas de alarme, câmeras IP, cerca elétrica, controle de acesso e baterias com melhor preço e qualidade garantida em Curitiba."
 >
-  <div class="min-h-screen bg-gray-50">
-    <!-- Header Simples -->
-    <header class="bg-white shadow-sm">
-      <div class="container mx-auto px-4 py-6">
-        <h1 class="text-3xl font-bold text-brand-primary">
-          🚀 AlarmeCenter - Base Astro
-        </h1>
-        <p class="text-gray-600 mt-2">Teste de conexão com WordPress GraphQL</p>
-      </div>
-    </header>
-
-    <!-- Status da API -->
-    <section class="container mx-auto px-4 py-8">
-      <div class="bg-white rounded-lg shadow-md p-6 mb-8">
-        <h2 class="text-xl font-semibold mb-4">🔍 Status da Conexão</h2>
-        
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <!-- API Status -->
-          <div class="text-center p-4 rounded-lg border">
-            <div class={`text-2xl mb-2 ${apiStatus === 'connected' ? 'text-green-500' : 'text-red-500'}`}>
-              {apiStatus === 'connected' ? '✅' : '❌'}
+  <!-- ==================== HEADER PROFISSIONAL ==================== -->
+  <header class="bg-white shadow-lg sticky top-0 z-50">
+    <!-- Top Bar -->
+    <div class="bg-gray-100 border-b border-gray-200">
+      <div class="container mx-auto">
+        <div class="flex justify-between items-center py-2 px-4 text-sm">
+          <!-- Left Info -->
+          <div class="flex items-center space-x-6 text-gray-600">
+            <div class="flex items-center space-x-1">
+              <span>📍</span>
+              <span>Colombo/PR</span>
             </div>
-            <h3 class="font-semibold">API WordPress</h3>
-            <p class="text-sm text-gray-600 capitalize">{apiStatus}</p>
+            <div class="hidden md:flex items-center space-x-1">
+              <span>📞</span>
+              <span>(41) 3128-0805</span>
+            </div>
+            <div class="hidden lg:flex items-center space-x-1">
+              <span>✉️</span>
+              <span>contato@alarmecenter.com.br</span>
+            </div>
           </div>
-
-          <!-- Products Count -->
-          <div class="text-center p-4 rounded-lg border">
-            <div class="text-2xl mb-2 text-blue-500">📦</div>
-            <h3 class="font-semibold">Produtos</h3>
-            <p class="text-sm text-gray-600">{products.length} encontrados</p>
-          </div>
-
-          <!-- Categories Count -->
-          <div class="text-center p-4 rounded-lg border">
-            <div class="text-2xl mb-2 text-purple-500">🏷️</div>
-            <h3 class="font-semibold">Categorias</h3>
-            <p class="text-sm text-gray-600">{categories.length} encontradas</p>
+          
+          <!-- Right Links -->
+          <div class="flex items-center space-x-4 text-gray-600">
+            <a href="/rastrear-pedido" class="hover:text-brand-primary transition-colors">📦 Rastrear Pedido</a>
+            <a href="/minha-conta" class="hover:text-brand-primary transition-colors">👤 Minha Conta</a>
+            <button id="theme-toggle" class="hover:text-brand-primary transition-colors">🌓</button>
           </div>
         </div>
       </div>
+    </div>
 
-      <!-- Products Preview -->
-      {products.length > 0 && (
-        <div class="bg-white rounded-lg shadow-md p-6 mb-8">
-          <h2 class="text-xl font-semibold mb-4">🛍️ Produtos (Preview)</h2>
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {products.slice(0, 3).map(product => (
-              <div class="border rounded-lg p-4" key={product.id}>
+    <!-- Main Header -->
+    <div class="bg-white">
+      <div class="container mx-auto px-4">
+        <div class="flex items-center justify-between py-6">
+          <!-- Logo -->
+          <div class="flex items-center space-x-4">
+            <a href="/" class="text-3xl font-bold">
+              <span class="text-brand-primary">Alarme</span><span class="text-gray-800">Center</span>
+            </a>
+            <div class="hidden lg:block text-sm text-gray-500">
+              <p class="font-medium">Segurança com Tecnologia</p>
+              <p class="text-xs">Há mais de 10 anos protegendo você</p>
+            </div>
+          </div>
+
+          <!-- Search Bar - Desktop -->
+          <div class="hidden md:flex flex-1 max-w-2xl mx-8">
+            <form action="/busca" method="GET" class="w-full flex shadow-sm">
+              <select class="border border-gray-300 rounded-l-lg px-3 py-3 bg-gray-50 text-sm focus:outline-none">
+                <option value="">Todas as categorias</option>
+                {mainCategories.map(cat => (
+                  <option value={cat.slug}>{cat.name}</option>
+                ))}
+              </select>
+              <input 
+                type="search" 
+                name="q"
+                placeholder="Buscar produtos, marcas, modelos..." 
+                class="flex-1 px-4 py-3 border-t border-b border-gray-300 focus:outline-none focus:border-brand-primary"
+              />
+              <button 
+                type="submit"
+                class="bg-brand-primary hover:bg-red-600 text-white px-6 py-3 rounded-r-lg font-medium transition-colors flex items-center"
+              >
+                <span class="hidden sm:inline mr-2">Buscar</span>
+                <span>🔍</span>
+              </button>
+            </form>
+          </div>
+
+          <!-- Header Actions -->
+          <div class="flex items-center space-x-4">
+            <!-- Wishlist -->
+            <a href="/favoritos" class="hidden lg:flex flex-col items-center text-gray-600 hover:text-brand-primary transition-colors group">
+              <div class="relative">
+                <span class="text-2xl group-hover:scale-110 transition-transform">❤️</span>
+                <span class="absolute -top-1 -right-1 bg-brand-primary text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">0</span>
+              </div>
+              <span class="text-xs font-medium">Favoritos</span>
+            </a>
+            
+            <!-- Compare -->
+            <a href="/comparar" class="hidden lg:flex flex-col items-center text-gray-600 hover:text-brand-primary transition-colors group">
+              <div class="relative">
+                <span class="text-2xl group-hover:scale-110 transition-transform">⚖️</span>
+                <span class="absolute -top-1 -right-1 bg-blue-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">0</span>
+              </div>
+              <span class="text-xs font-medium">Comparar</span>
+            </a>
+            
+            <!-- Cart -->
+            <a href="/carrinho" class="flex flex-col items-center text-gray-600 hover:text-brand-primary transition-colors group">
+              <div class="relative">
+                <span class="text-2xl group-hover:scale-110 transition-transform">🛒</span>
+                <span class="cart-count absolute -top-1 -right-1 bg-brand-primary text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">0</span>
+              </div>
+              <span class="text-xs font-medium">Carrinho</span>
+            </a>
+            
+            <!-- Mobile Menu -->
+            <button class="mobile-menu-btn lg:hidden text-2xl text-gray-600 hover:text-brand-primary">☰</button>
+          </div>
+        </div>
+
+        <!-- Mobile Search -->
+        <div class="md:hidden pb-4">
+          <form action="/busca" method="GET" class="flex">
+            <input 
+              type="search" 
+              name="q"
+              placeholder="Buscar produtos..." 
+              class="flex-1 px-4 py-3 border border-gray-300 rounded-l-lg focus:outline-none focus:border-brand-primary"
+            />
+            <button 
+              type="submit"
+              class="bg-brand-primary text-white px-4 py-3 rounded-r-lg"
+            >
+              🔍
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Navigation Bar -->
+    <nav class="bg-brand-secondary text-white">
+      <div class="container mx-auto px-4">
+        <div class="flex items-center">
+          <!-- Categories Mega Menu -->
+          <div class="relative group">
+            <button class="bg-brand-primary hover:bg-red-600 px-8 py-4 flex items-center space-x-3 font-semibold transition-colors">
+              <span class="text-lg">☰</span>
+              <span class="hidden sm:inline">TODAS AS CATEGORIAS</span>
+              <span class="text-sm">▼</span>
+            </button>
+            
+            <!-- Mega Menu Dropdown -->
+            <div class="absolute top-full left-0 w-screen max-w-4xl bg-white text-gray-800 shadow-2xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300">
+              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-0">
+                {mainCategories.map((category, index) => {
+                  const icons = ['🚨', '📹', '⚡', '🔐', '🔋', '💡'];
+                  const bgColors = ['bg-red-50 hover:bg-red-100', 'bg-blue-50 hover:bg-blue-100', 'bg-yellow-50 hover:bg-yellow-100', 'bg-green-50 hover:bg-green-100', 'bg-purple-50 hover:bg-purple-100', 'bg-indigo-50 hover:bg-indigo-100'];
+                  
+                  return (
+                    <div class={`${bgColors[index % bgColors.length]} transition-colors`}>
+                      <a href={`/categoria/${category.slug}`} class="block p-6 hover:shadow-md transition-shadow">
+                        <div class="flex items-start space-x-4">
+                          <div class="text-3xl">{icons[index % icons.length]}</div>
+                          <div class="flex-1">
+                            <h3 class="font-bold text-lg text-gray-800 mb-2">{category.name}</h3>
+                            <p class="text-sm text-gray-600 mb-3 leading-relaxed">{category.description}</p>
+                            <div class="flex items-center justify-between">
+                              <span class="text-sm font-medium text-gray-500">{category.count} produtos</span>
+                              <span class="text-brand-primary">→</span>
+                            </div>
+                            {category.children && category.children.length > 0 && (
+                              <div class="mt-3 space-y-1">
+                                {category.children.slice(0, 3).map(child => (
+                                  <a href={`/categoria/${child.slug}`} class="block text-xs text-gray-500 hover:text-brand-primary transition-colors">
+                                    • {child.name} ({child.count})
+                                  </a>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </a>
+                    </div>
+                  )
+                })}
+              </div>
+              
+              <!-- Menu Footer -->
+              <div class="bg-gray-50 border-t border-gray-200 p-4">
+                <div class="flex justify-between items-center">
+                  <span class="text-sm text-gray-600">Encontre tudo em segurança eletrônica</span>
+                  <a href="/produtos" class="text-brand-primary font-medium text-sm hover:underline">
+                    Ver todos os produtos →
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Main Navigation -->
+          <div class="hidden lg:flex items-center ml-8 space-x-8">
+            <a href="/" class="py-4 border-b-2 border-brand-primary text-white font-medium">Home</a>
+            <a href="/produtos" class="py-4 border-b-2 border-transparent hover:border-white transition-colors">Produtos</a>
+            <a href="/marcas" class="py-4 border-b-2 border-transparent hover:border-white transition-colors">Marcas</a>
+            <a href="/promocoes" class="py-4 border-b-2 border-transparent hover:border-white transition-colors text-yellow-400">🔥 Promoções</a>
+            <a href="/instalacao" class="py-4 border-b-2 border-transparent hover:border-white transition-colors">Instalação</a>
+            <a href="/suporte" class="py-4 border-b-2 border-transparent hover:border-white transition-colors">Suporte</a>
+            <a href="/contato" class="py-4 border-b-2 border-transparent hover:border-white transition-colors">Contato</a>
+          </div>
+
+          <!-- Header Right Info -->
+          <div class="hidden xl:flex items-center ml-auto space-x-6 text-sm">
+            <div class="flex items-center space-x-2">
+              <span class="text-yellow-400">🕒</span>
+              <div class="text-right">
+                <p class="font-medium">Seg-Sex: 8h às 18h</p>
+                <p class="text-xs text-gray-300">Sáb: 8h às 12h</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </nav>
+  </header>
+
+  <!-- ==================== HERO SLIDER ==================== -->
+  <section class="relative overflow-hidden bg-gradient-to-r from-blue-900 via-purple-900 to-blue-800">
+    <div class="absolute inset-0 bg-black/30"></div>
+    
+    <!-- Slide 1 - Bateria Moura -->
+    <div class="slide relative">
+      <div class="container mx-auto px-4 py-20 lg:py-32">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          <div class="text-white space-y-8">
+            <div class="space-y-4">
+              <div class="inline-flex items-center bg-yellow-400 text-yellow-900 px-4 py-2 rounded-full text-sm font-bold uppercase tracking-wide">
+                <span class="mr-2">🔥</span>
+                Oferta Especial
+              </div>
+              <h1 class="text-5xl lg:text-7xl font-bold leading-tight">
+                Bateria <span class="text-yellow-400">Moura</span>
+              </h1>
+              <h2 class="text-2xl lg:text-3xl font-semibold text-blue-200">
+                12V 7Ah VRLA - Nobreak e Alarme
+              </h2>
+            </div>
+            
+            <div class="space-y-3">
+              <div class="flex items-baseline space-x-3">
+                <span class="text-lg text-gray-300">A partir de</span>
+                <span class="text-5xl font-bold text-yellow-400">R$ 132,30</span>
+              </div>
+              <p class="text-lg text-blue-200 font-medium">💰 A BATERIA MOURA MAIS VENDIDA</p>
+              <p class="text-sm text-blue-300">✨ Tecnologia VRLA AGM • 🛡️ 12 meses de garantia</p>
+            </div>
+            
+            <div class="flex flex-col sm:flex-row gap-4">
+              <button class="bg-brand-primary hover:bg-red-600 text-white px-8 py-4 rounded-lg font-bold text-lg transition-all transform hover:scale-105 add-to-cart-btn"
+                      data-product-id="95"
+                      data-product-name="Bateria Moura 12V 7Ah VRLA"
+                      data-product-price="R$ 132,30"
+                      data-product-image="https://via.placeholder.com/300x300/e74c3c/ffffff?text=Bateria+Moura"
+                      data-product-slug="bateria-moura-12v-7ah">
+                🛒 COMPRE AGORA
+              </button>
+              <a href="/produto/bateria-moura-12v-7ah" class="border-2 border-white hover:bg-white hover:text-blue-900 text-white px-8 py-4 rounded-lg font-bold text-lg transition-all text-center">
+                📋 DETALHES
+              </a>
+            </div>
+          </div>
+          
+          <!-- Product Image -->
+          <div class="relative flex justify-center lg:justify-end">
+            <div class="relative">
+              <div class="absolute -inset-4 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full opacity-20 blur-2xl animate-pulse"></div>
+              <div class="relative bg-white/10 backdrop-blur-sm rounded-2xl p-8 border border-white/20">
                 <img 
-                  src={product.image?.sourceUrl || '/placeholder-product.svg'}
-                 // /* src={product.image.sourceUrl} */
-                  alt={product.name}
-                  class="w-full h-32 object-cover rounded mb-3"
-                  onerror="this.src='/placeholder-product.svg'"
+                  src="https://via.placeholder.com/400x400/ffffff/333333?text=Bateria+Moura+12V" 
+                  alt="Bateria Moura 12V 7Ah"
+                  class="w-full max-w-sm h-auto drop-shadow-2xl transform hover:scale-105 transition-transform duration-300"
                 />
-                <h3 class="font-semibold text-sm mb-2">{product.name}</h3>
-                <p class="text-brand-primary font-bold">{product.price}</p>
-                <p class="text-xs text-gray-500">SKU: {product.sku || 'N/A'}</p>
               </div>
-            ))}
+            </div>
           </div>
         </div>
-      )}
+      </div>
+    </div>
 
-      <!-- Categories Preview -->
-      {categories.length > 0 && (
-        <div class="bg-white rounded-lg shadow-md p-6">
-          <h2 class="text-xl font-semibold mb-4">📋 Categorias (Preview)</h2>
-          <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {categories.slice(0, 8).map(category => (
-              <div class="border rounded-lg p-3 text-center">
-                <h4 class="font-medium text-sm">{category.name}</h4>
-                <p class="text-xs text-gray-500">{category.count} produtos</p>
+    <!-- Slider Controls -->
+    <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex space-x-3">
+      <button class="w-3 h-3 rounded-full bg-white opacity-100 hover:scale-125 transition-all"></button>
+      <button class="w-3 h-3 rounded-full bg-white/50 hover:bg-white hover:scale-125 transition-all"></button>
+      <button class="w-3 h-3 rounded-full bg-white/50 hover:bg-white hover:scale-125 transition-all"></button>
+    </div>
+  </section>
+
+  <!-- ==================== PROMOTIONAL BANNERS ==================== -->
+  <section class="py-12 bg-gray-50">
+    <div class="container mx-auto px-4">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <!-- Banner Bateria Promocional -->
+        <div class="relative bg-gradient-to-r from-red-500 to-red-600 rounded-xl overflow-hidden group cursor-pointer transform hover:scale-105 transition-all duration-300">
+          <div class="absolute inset-0 bg-black/10 group-hover:bg-black/20 transition-colors"></div>
+          <div class="relative p-8 text-white">
+            <div class="flex items-center space-x-6">
+              <div class="flex-shrink-0 w-20 h-20 bg-white/20 rounded-full flex items-center justify-center">
+                <span class="text-3xl">🔋</span>
               </div>
-            ))}
+              <div class="flex-1">
+                <div class="mb-2">
+                  <span class="bg-yellow-400 text-yellow-900 px-3 py-1 rounded-full text-sm font-bold">OFERTA</span>
+                </div>
+                <h3 class="text-2xl font-bold mb-2">
+                  Bateria de <strong>Alarme</strong><br/>em Promoção
+                </h3>
+                <p class="text-3xl font-bold">PIX: R$ 91,30</p>
+                <p class="text-sm text-red-200 mt-1">Economia de R$ 41,00</p>
+              </div>
+            </div>
+            <div class="absolute bottom-4 right-4 text-white/70 group-hover:text-white transition-colors">
+              →
+            </div>
           </div>
         </div>
-      )}
 
-      <!-- Debug Info -->
-      <div class="mt-8 bg-gray-100 rounded-lg p-4">
-        <details>
-          <summary class="cursor-pointer font-semibold">🔧 Debug Info</summary>
-          <div class="mt-4 text-sm">
-            <p><strong>Endpoint:</strong> {import.meta.env.WORDPRESS_API_URL}</p>
-            <p><strong>Products Found:</strong> {products.length}</p>
-            <p><strong>Categories Found:</strong> {categories.length}</p>
-            <p><strong>Build Time:</strong> {new Date().toLocaleString('pt-BR')}</p>
+        <!-- Banner Nobreak -->
+        <div class="relative bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl overflow-hidden group cursor-pointer transform hover:scale-105 transition-all duration-300">
+          <div class="absolute inset-0 bg-black/10 group-hover:bg-black/20 transition-colors"></div>
+          <div class="relative p-8 text-white">
+            <div class="flex items-center space-x-6">
+              <div class="flex-shrink-0 w-20 h-20 bg-white/20 rounded-full flex items-center justify-center">
+                <span class="text-3xl">⚡</span>
+              </div>
+              <div class="flex-1">
+                <div class="mb-2">
+                  <span class="bg-blue-200 text-blue-900 px-3 py-1 rounded-full text-sm font-bold">DESTAQUE</span>
+                </div>
+                <h3 class="text-2xl font-bold mb-2">
+                  Bateria de <strong>Nobreak</strong><br/>em Promoção
+                </h3>
+                <p class="text-3xl font-bold">PIX: R$ 125,69</p>
+                <p class="text-sm text-blue-200 mt-1">12x sem juros no cartão</p>
+              </div>
+            </div>
+            <div class="absolute bottom-4 right-4 text-white/70 group-hover:text-white transition-colors">
+              →
+            </div>
           </div>
-        </details>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== CATEGORIAS EM DESTAQUE ==================== -->
+  <section class="py-20 bg-white">
+    <div class="container mx-auto px-4">
+      <div class="text-center mb-16">
+        <h2 class="text-4xl lg:text-5xl font-bold text-gray-800 mb-6">
+          Principais <span class="text-brand-primary">Categorias</span>
+        </h2>
+        <p class="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+          Explore nossa ampla gama de produtos para segurança eletrônica. 
+          Soluções completas para proteção residencial, comercial e industrial.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {mainCategories.map((category, index) => {
+          const icons = ['🚨', '📹', '⚡', '🔐', '🔋', '💡'];
+          const gradients = [
+            'from-red-500 to-red-600',
+            'from-blue-500 to-blue-600', 
+            'from-yellow-500 to-orange-500',
+            'from-green-500 to-green-600',
+            'from-purple-500 to-purple-600',
+            'from-indigo-500 to-indigo-600'
+          ];
+          
+          return (
+            <div class="group">
+              <a href={`/categoria/${category.slug}`} class="block bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-3 border border-gray-100 overflow-hidden">
+                <div class={`relative h-56 bg-gradient-to-br ${gradients[index % gradients.length]} flex items-center justify-center`}>
+                  <div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300"></div>
+                  <div class="relative text-8xl text-white opacity-90 group-hover:scale-125 transition-all duration-500">
+                    {icons[index % icons.length]}
+                  </div>
+                  
+                  <!-- Category Badge -->
+                  <div class="absolute top-4 right-4 bg-white/20 backdrop-blur-sm rounded-full px-3 py-1">
+                    <span class="text-white text-sm font-semibold">{category.count}+</span>
+                  </div>
+                </div>
+                
+                <div class="p-8">
+                  <h3 class="text-2xl font-bold text-gray-800 mb-3 group-hover:text-brand-primary transition-colors">
+                    {category.name}
+                  </h3>
+                  <p class="text-gray-600 leading-relaxed mb-6">
+                    {category.description}
+                  </p>
+                  
+                  <!-- Subcategories Preview -->
+                  {category.children && category.children.length > 0 && (
+                    <div class="mb-6">
+                      <div class="flex flex-wrap gap-2">
+                        {category.children.slice(0, 3).map(child => (
+                          <span class="text-xs bg-gray-100 text-gray-600 px-3 py-1 rounded-full">
+                            {child.name}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  
+                  <div class="flex items-center justify-between">
+                    <span class="text-sm font-medium text-gray-500">{category.count} produtos disponíveis</span>
+                    <span class="text-brand-primary group-hover:translate-x-2 transition-transform duration-300 text-xl">→</span>
+                  </div>
+                </div>
+              </a>
+            </div>
+          )
+        })}
+      </div>
+
+      <!-- CTA Categories -->
+      <div class="text-center mt-16">
+        <a href="/produtos" class="inline-block bg-brand-primary hover:bg-red-600 text-white px-10 py-4 rounded-xl font-bold text-lg transition-all transform hover:scale-105 shadow-lg hover:shadow-xl">
+          <span class="mr-2">🔍</span>
+          Explorar Todo o Catálogo
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== PRODUTOS EM DESTAQUE ==================== -->
+  <section class="py-20 bg-gray-50">
+    <div class="container mx-auto px-4">
+      <div class="text-center mb-16">
+        <h2 class="text-4xl lg:text-5xl font-bold text-gray-800 mb-6">
+          Produtos em <span class="text-brand-primary">Destaque</span>
+        </h2>
+        <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+          Nossa seleção especial com os produtos mais procurados e com melhor avaliação dos nossos clientes
+        </p>
+      </div>
+
+      <!-- Products Grid -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+        {featuredProducts.map(product => (
+          <div class="product-card bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 border border-gray-100 group overflow-hidden">
+            <!-- Product Image -->
+            <div class="relative overflow-hidden">
+              <a href={`/produto/${product.slug}`} class="block">
+                <img 
+                  src={product.image.sourceUrl} 
+                  alt={product.image.altText}
+                  class="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-500"
+                  loading="lazy"
+                  onerror="this.src='https://via.placeholder.com/300x300/f3f4f6/9ca3af?text=Produto+AlarmeCenter'"
+                />
+              </a>
+              
+              <!-- Badges -->
+              <div class="absolute top-3 left-3 space-y-2">
+                {product.onSale && (
+                  <div class="bg-brand-primary text-white px-3 py-1 rounded-full text-sm font-bold shadow-lg">
+                    OFERTA
+                  </div>
+                )}
+                {product.featured && (
+                  <div class="bg-yellow-400 text-yellow-900 px-3 py-1 rounded-full text-sm font-bold shadow-lg">
+                    DESTAQUE
+                  </div>
+                )}
+              </div>
+
+              <!-- Quick Actions -->
+              <div class="absolute top-3 right-3 flex flex-col space-y-2 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-4 group-hover:translate-x-0">
+                <button class="w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-red-500 hover:text-white transition-all duration-300" title="Ver detalhes">
+                  👁️
+                </button>
+                <button class="w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-pink-500 hover:text-white transition-all duration-300" title="Favoritos">
+                  ❤️
+                </button>
+                <button class="w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-blue-500 hover:text-white transition-all duration-300" title="Comparar">
+                  ⚖️
+                </button>
+              </div>
+
+              <!-- Stock Status -->
+              <div class="absolute bottom-3 left-3">
+                <span class={`px-3 py-1 rounded-full text-xs font-bold shadow-lg ${product.stockStatus === 'IN_STOCK' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'}`}>
+                  {product.stockStatus === 'IN_STOCK' ? '✅ Em Estoque' : '❌ Indisponível'}
+                </span>
+              </div>
+            </div>
+
+            <!-- Product Info -->
+            <div class="p-6">
+              <!-- Category -->
+              {product.productCategories.nodes.length > 0 && (
+                <div class="mb-3">
+                  <a href={`/categoria/${product.productCategories.nodes[0].slug}`} class="text-xs bg-gray-100 text-gray-600 hover:bg-brand-primary hover:text-white px-3 py-1 rounded-full transition-colors">
+                    {product.productCategories.nodes[0].name}
+                  </a>
+                </div>
+              )}
+
+              <!-- Product Title -->
+              <h3 class="font-bold text-lg text-gray-800 mb-3 line-clamp-2 leading-tight group-hover:text-brand-primary transition-colors">
+                <a href={`/produto/${product.slug}`}>
+                  {product.name}
+                </a>
+              </h3>
+
+              <!-- Rating -->
+              <div class="flex items-center mb-4">
+                <div class="flex text-yellow-400">⭐⭐⭐⭐⭐</div>
+                <span class="text-gray-500 text-sm ml-2">(0)</span>
+                <span class="ml-auto text-xs text-gray-400">SKU: {product.sku}</span>
+              </div>
+
+              <!-- Price -->
+              <div class="mb-6">
+                {product.onSale && product.regularPrice !== product.salePrice ? (
+                  <div class="space-y-2">
+                    <div class="flex items-center space-x-2">
+                      <span class="text-lg text-gray-500 line-through">{product.regularPrice}</span>
+                      <span class="bg-red-100 text-red-800 px-2 py-1 rounded text-xs font-bold">
+                        -{Math.round(((parseFloat(product.regularPrice?.replace(/[^\d,]/g, '').replace(',', '.')) - parseFloat(product.salePrice?.replace(/[^\d,]/g, '').replace(',', '.'))) / parseFloat(product.regularPrice?.replace(/[^\d,]/g, '').replace(',', '.'))) * 100)}%
+                      </span>
+                    </div>
+                    <div class="text-3xl font-bold text-brand-primary">{product.salePrice || product.price}</div>
+                  </div>
+                ) : (
+                  <div class="text-3xl font-bold text-brand-primary">{product.price}</div>
+                )}
+                
+                <div class="text-sm text-gray-600 mt-2">
+                  <span class="font-medium">💳</span> 12x sem juros no cartão
+                </div>
+              </div>
+
+              <!-- Actions -->
+              <div class="space-y-3">
+                <button 
+                  class="w-full bg-brand-primary hover:bg-red-600 text-white py-3 rounded-lg font-bold text-lg transition-all transform hover:scale-105 add-to-cart-btn shadow-lg"
+                  data-product-id={product.id}
+                  data-product-name={product.name}
+                  data-product-price={product.price}
+                  data-product-image={product.image.sourceUrl}
+                  data-product-slug={product.slug}
+                >
+                  🛒 Adicionar ao Carrinho
+                </button>
+                
+                <div class="grid grid-cols-2 gap-3">
+                  <a 
+                    href={`/produto/${product.slug}`}
+                    class="bg-gray-100 hover:bg-gray-200 text-gray-700 py-2 px-4 rounded-lg text-sm font-medium transition-colors text-center"
+                  >
+                    📋 Detalhes
+                  </a>
+                  <a 
+                    href={`https://wa.me/5541999998888?text=Interesse no produto: ${product.name} - ${product.price}`}
+                    target="_blank"
+                    class="bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded-lg text-sm font-medium transition-colors text-center"
+                  >
+                    💬 WhatsApp
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <!-- View All Products -->
+      <div class="text-center mt-16">
+        <a 
+          href="/produtos" 
+          class="inline-block bg-brand-secondary hover:bg-gray-700 text-white px-10 py-4 rounded-xl font-bold text-lg transition-all transform hover:scale-105"
+        >
+          Ver Todos os {products.length} Produtos
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== PRODUTOS EM OFERTA ==================== -->
+  {onSaleProducts.length > 0 && (
+    <section class="py-20 bg-brand-primary">
+      <div class="container mx-auto px-4">
+        <div class="text-center mb-16">
+          <h2 class="text-4xl lg:text-5xl font-bold text-white mb-6">
+            🔥 Ofertas <span class="text-yellow-400">Especiais</span>
+          </h2>
+          <p class="text-xl text-red-100 max-w-2xl mx-auto">
+            Aproveite nossos preços promocionais por tempo limitado
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {onSaleProducts.map(product => (
+            <div class="bg-white rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 overflow-hidden">
+              <div class="relative">
+                <img 
+                  src={product.image.sourceUrl} 
+                  alt={product.image.altText}
+                  class="w-full h-48 object-cover"
+                  loading="lazy"
+                  onerror="this.src='https://via.placeholder.com/300x200/f3f4f6/9ca3af?text=Oferta'"
+                />
+                <div class="absolute top-3 left-3 bg-yellow-400 text-yellow-900 px-3 py-1 rounded-full text-sm font-bold">
+                  OFERTA
+                </div>
+              </div>
+              
+              <div class="p-6">
+                <h3 class="font-bold text-gray-800 mb-3 line-clamp-2">
+                  <a href={`/produto/${product.slug}`} class="hover:text-brand-primary transition-colors">
+                    {product.name}
+                  </a>
+                </h3>
+                
+                <div class="space-y-2 mb-4">
+                  <div class="text-sm text-gray-500 line-through">{product.regularPrice}</div>
+                  <div class="text-2xl font-bold text-brand-primary">{product.salePrice || product.price}</div>
+                </div>
+                
+                <button 
+                  class="w-full bg-brand-primary hover:bg-red-600 text-white py-2 rounded-lg font-semibold transition-colors add-to-cart-btn"
+                  data-product-id={product.id}
+                  data-product-name={product.name}
+                  data-product-price={product.salePrice || product.price}
+                  data-product-image={product.image.sourceUrl}
+                  data-product-slug={product.slug}
+                >
+                  Aproveitar Oferta
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </section>
+  )}
+
+  <!-- ==================== TRUST BADGES ==================== -->
+  <section class="py-16 bg-white border-t border-gray-200">
+    <div class="container mx-auto px-4">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div class="text-center group">
+          <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
+            <span class="text-3xl text-green-600">🚚</span>
+          </div>
+          <h3 class="font-bold text-lg text-gray-800 mb-2">Entrega Rápida</h3>
+          <p class="text-gray-600">Para todo o Brasil com rastreamento completo</p>
+        </div>
+        
+        <div class="text-center group">
+          <div class="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
+            <span class="text-3xl text-blue-600">🔒</span>
+          </div>
+          <h3 class="font-bold text-lg text-gray-800 mb-2">100% Seguro</h3>
+          <p class="text-gray-600">SSL, dados protegidos e pagamento seguro</p>
+        </div>
+        
+        <div class="text-center group">
+          <div class="w-20 h-20 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
+            <span class="text-3xl text-purple-600">💳</span>
+          </div>
+          <h3 class="font-bold text-lg text-gray-800 mb-2">Formas de Pagamento</h3>
+          <p class="text-gray-600">PIX, cartão de crédito, débito e boleto</p>
+        </div>
+        
+        <div class="text-center group">
+          <div class="w-20 h-20 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
+            <span class="text-3xl text-orange-600">🎧</span>
+          </div>
+          <h3 class="font-bold text-lg text-gray-800 mb-2">Suporte Especializado</h3>
+          <p class="text-gray-600">Atendimento técnico e pós-venda</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== NEWSLETTER & CTA ==================== -->
+  <section class="py-16 bg-brand-secondary text-white relative overflow-hidden">
+    <div class="absolute inset-0 bg-gradient-to-r from-brand-secondary to-gray-800"></div>
+    <div class="relative container mx-auto px-4 text-center">
+      <h2 class="text-3xl lg:text-4xl font-bold mb-4">
+        🎯 Receba Ofertas <span class="text-yellow-400">Exclusivas</span>
+      </h2>
+      <p class="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
+        Cadastre-se em nossa newsletter e seja o primeiro a saber sobre promoções, 
+        lançamentos e dicas de segurança eletrônica.
+      </p>
+      
+      <form class="max-w-lg mx-auto flex gap-4 mb-8">
+        <input 
+          type="email" 
+          placeholder="Seu melhor e-mail"
+          class="flex-1 px-6 py-4 rounded-xl text-gray-800 text-lg focus:outline-none focus:ring-4 focus:ring-yellow-400/50"
+          required
+        />
+        <button 
+          type="submit"
+          class="bg-yellow-400 hover:bg-yellow-300 text-yellow-900 px-8 py-4 rounded-xl font-bold text-lg transition-all transform hover:scale-105"
+        >
+          Cadastrar
+        </button>
+      </form>
+      
+      <!-- Contact CTA -->
+      <div class="flex flex-col sm:flex-row justify-center items-center gap-6 mt-12">
+        <a 
+          href="tel:+5541999998888"
+          class="flex items-center space-x-3 bg-green-500 hover:bg-green-400 text-white px-6 py-3 rounded-xl font-semibold transition-all transform hover:scale-105"
+        >
+          <span class="text-xl">📞</span>
+          <span>(41) 99999-8888</span>
+        </a>
+        
+        <a 
+          href="https://wa.me/5541999998888?text=Olá! Gostaria de mais informações sobre os produtos da AlarmeCenter."
+          target="_blank"
+          class="flex items-center space-x-3 bg-green-600 hover:bg-green-500 text-white px-6 py-3 rounded-xl font-semibold transition-all transform hover:scale-105"
+        >
+          <span class="text-xl">💬</span>
+          <span>WhatsApp</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== FOOTER PROFISSIONAL ==================== -->
+  <footer class="bg-gray-900 text-white">
+    <!-- Main Footer -->
+    <div class="container mx-auto px-4 py-16">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
+        <!-- Company Info -->
+        <div class="lg:col-span-1">
+          <div class="mb-6">
+            <h3 class="text-2xl font-bold mb-3">
+              <span class="text-brand-primary">Alarme</span>Center
+            </h3>
+            <p class="text-gray-400 text-sm">Segurança com Tecnologia</p>
+          </div>
+          
+          <p class="text-gray-300 leading-relaxed mb-6">
+            Especialista em segurança eletrônica há mais de 10 anos. 
+            Oferecemos soluções completas para proteção residencial, comercial e industrial 
+            com produtos das melhores marcas do mercado.
+          </p>
+          
+          <!-- Social Media -->
+          <div class="flex space-x-4">
+            <a href="#" class="w-12 h-12 bg-gray-800 hover:bg-brand-primary rounded-full flex items-center justify-center transition-colors">
+              <span class="text-xl">📘</span>
+            </a>
+            <a href="#" class="w-12 h-12 bg-gray-800 hover:bg-brand-primary rounded-full flex items-center justify-center transition-colors">
+              <span class="text-xl">📷</span>
+            </a>
+            <a href="#" class="w-12 h-12 bg-gray-800 hover:bg-brand-primary rounded-full flex items-center justify-center transition-colors">
+              <span class="text-xl">💼</span>
+            </a>
+          </div>
+        </div>
+
+        <!-- Quick Links -->
+        <div>
+          <h4 class="text-lg font-bold mb-6 text-white">Links Rápidos</h4>
+          <nav class="space-y-3">
+            <a href="/" class="block text-gray-300 hover:text-white transition-colors">🏠 Página Inicial</a>
+            <a href="/produtos" class="block text-gray-300 hover:text-white transition-colors">🛍️ Todos os Produtos</a>
+            <a href="/promocoes" class="block text-gray-300 hover:text-white transition-colors">🔥 Promoções</a>
+            <a href="/marcas" class="block text-gray-300 hover:text-white transition-colors">🏷️ Marcas</a>
+            <a href="/instalacao" class="block text-gray-300 hover:text-white transition-colors">🔧 Instalação</a>
+            <a href="/suporte" class="block text-gray-300 hover:text-white transition-colors">🎧 Suporte Técnico</a>
+            <a href="/blog" class="block text-gray-300 hover:text-white transition-colors">📝 Blog</a>
+          </nav>
+        </div>
+
+        <!-- Categories -->
+        <div>
+          <h4 class="text-lg font-bold mb-6 text-white">Categorias</h4>
+          <nav class="space-y-3">
+            {mainCategories.map(category => (
+              <a href={`/categoria/${category.slug}`} class="block text-gray-300 hover:text-white transition-colors">
+                {category.name}
+              </a>
+            ))}
+          </nav>
+        </div>
+
+        <!-- Contact & Info -->
+        <div>
+          <h4 class="text-lg font-bold mb-6 text-white">Contato & Informações</h4>
+          <div class="space-y-4">
+            <!-- Address -->
+            <div class="flex items-start space-x-3">
+              <span class="text-brand-primary text-lg mt-1">📍</span>
+              <div class="text-gray-300">
+                <p class="font-medium">Colombo - PR</p>
+                <p class="text-sm">Brasil</p>
+              </div>
+            </div>
+            
+            <!-- Phone -->
+            <div class="flex items-center space-x-3">
+              <span class="text-brand-primary text-lg">📞</span>
+              <div class="text-gray-300">
+                <a href="tel:+5541999998888" class="hover:text-white transition-colors">
+                  (41) 99999-8888
+                </a>
+              </div>
+            </div>
+            
+            <!-- Email -->
+            <div class="flex items-center space-x-3">
+              <span class="text-brand-primary text-lg">✉️</span>
+              <div class="text-gray-300">
+                <a href="mailto:contato@alarmecenter.com.br" class="hover:text-white transition-colors">
+                  contato@alarmecenter.com.br
+                </a>
+              </div>
+            </div>
+            
+            <!-- Hours -->
+            <div class="flex items-start space-x-3">
+              <span class="text-brand-primary text-lg mt-1">🕒</span>
+              <div class="text-gray-300 text-sm">
+                <p><strong>Seg - Sex:</strong> 8h às 18h</p>
+                <p><strong>Sábado:</strong> 8h às 12h</p>
+                <p><strong>Domingo:</strong> Fechado</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Payment Methods & Security -->
+    <div class="border-t border-gray-700">
+      <div class="container mx-auto px-4 py-8">
+        <div class="flex flex-col lg:flex-row justify-between items-center space-y-6 lg:space-y-0">
+          <!-- Payment Methods -->
+          <div class="text-center lg:text-left">
+            <h5 class="font-semibold mb-4 text-gray-300">💳 Formas de Pagamento</h5>
+            <div class="flex justify-center lg:justify-start space-x-4 text-3xl">
+              <span title="PIX" class="hover:scale-125 transition-transform cursor-pointer">🏦</span>
+              <span title="Visa" class="hover:scale-125 transition-transform cursor-pointer">💳</span>
+              <span title="MasterCard" class="hover:scale-125 transition-transform cursor-pointer">💳</span>
+              <span title="Boleto" class="hover:scale-125 transition-transform cursor-pointer">📋</span>
+              <span title="Transferência" class="hover:scale-125 transition-transform cursor-pointer">💰</span>
+            </div>
+          </div>
+
+          <!-- Security Badges -->
+          <div class="text-center lg:text-right">
+            <h5 class="font-semibold mb-4 text-gray-300">🔒 Segurança & Confiança</h5>
+            <div class="flex justify-center lg:justify-end space-x-3">
+              <span class="bg-green-600 px-4 py-2 rounded-lg text-white text-sm font-medium flex items-center space-x-2">
+                <span>🔒</span>
+                <span>SSL Seguro</span>
+              </span>
+              <span class="bg-blue-600 px-4 py-2 rounded-lg text-white text-sm font-medium flex items-center space-x-2">
+                <span>✓</span>
+                <span>Site Verificado</span>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Footer -->
+    <div class="bg-gray-950 border-t border-gray-800">
+      <div class="container mx-auto px-4 py-6">
+        <div class="flex flex-col lg:flex-row justify-between items-center text-sm text-gray-400">
+          <div class="mb-4 lg:mb-0 text-center lg:text-left">
+            <p>&copy; 2025 <strong class="text-brand-primary">AlarmeCenter</strong>. Todos os direitos reservados.</p>
+            <p class="text-xs mt-1">CNPJ: 00.000.000/0001-00 | Desenvolvido com Astro 🚀</p>
+          </div>
+          
+          <div class="flex flex-wrap justify-center lg:justify-end space-x-6">
+            <a href="/politica-privacidade" class="hover:text-white transition-colors">Política de Privacidade</a>
+            <a href="/termos-uso" class="hover:text-white transition-colors">Termos de Uso</a>
+            <a href="/politica-entrega" class="hover:text-white transition-colors">Política de Entrega</a>
+            <a href="/trocas-devolucoes" class="hover:text-white transition-colors">Trocas e Devoluções</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ==================== MOBILE MENU ==================== -->
+  <div class="mobile-menu fixed inset-y-0 left-0 w-80 bg-white shadow-2xl z-50 transform -translate-x-full transition-transform duration-300">
+    <!-- Header -->
+    <div class="bg-brand-primary text-white p-6">
+      <div class="flex justify-between items-center">
+        <h3 class="text-xl font-bold">Menu</h3>
+        <button class="mobile-menu-close text-2xl hover:scale-110 transition-transform">×</button>
+      </div>
+    </div>
+    
+    <!-- Menu Content -->
+    <div class="flex-1 overflow-y-auto">
+      <!-- Search -->
+      <div class="p-4 border-b">
+        <form action="/busca" method="GET" class="flex">
+          <input 
+            type="search" 
+            name="q"
+            placeholder="Buscar produtos..." 
+            class="flex-1 px-4 py-3 border border-gray-300 rounded-l-lg focus:outline-none focus:border-brand-primary"
+          />
+          <button 
+            type="submit"
+            class="bg-brand-primary text-white px-4 py-3 rounded-r-lg"
+          >
+            🔍
+          </button>
+        </form>
+      </div>
+
+      <!-- Navigation -->
+      <nav class="p-4">
+        <div class="space-y-2 mb-6">
+          <a href="/" class="flex items-center space-x-3 py-3 text-gray-800 hover:text-brand-primary font-medium">
+            <span>🏠</span>
+            <span>Página Inicial</span>
+          </a>
+          <a href="/produtos" class="flex items-center space-x-3 py-3 text-gray-800 hover:text-brand-primary">
+            <span>🛍️</span>
+            <span>Todos os Produtos</span>
+          </a>
+          <a href="/promocoes" class="flex items-center space-x-3 py-3 text-gray-800 hover:text-brand-primary">
+            <span>🔥</span>
+            <span>Promoções</span>
+          </a>
+        </div>
+        
+        <!-- Categories -->
+        <div class="border-t pt-4">
+          <h4 class="font-bold mb-4 text-gray-800">📂 Categorias</h4>
+          <div class="space-y-2">
+            {mainCategories.map((category, index) => {
+              const icons = ['🚨', '📹', '⚡', '🔐', '🔋', '💡'];
+              return (
+                <a href={`/categoria/${category.slug}`} class="flex items-center justify-between py-3 text-gray-600 hover:text-brand-primary hover:bg-gray-50 px-3 rounded-lg transition-all">
+                  <div class="flex items-center space-x-3">
+                    <span>{icons[index % icons.length]}</span>
+                    <span>{category.name}</span>
+                  </div>
+                  <span class="text-xs bg-gray-200 text-gray-600 px-2 py-1 rounded-full">{category.count}</span>
+                </a>
+              )
+            })}
+          </div>
+        </div>
+        
+        <!-- Account & Support -->
+        <div class="border-t pt-4 mt-6">
+          <div class="space-y-2">
+            <a href="/minha-conta" class="flex items-center space-x-3 py-3 text-gray-800 hover:text-brand-primary">
+              <span>👤</span>
+              <span>Minha Conta</span>
+            </a>
+            <a href="/favoritos" class="flex items-center space-x-3 py-3 text-gray-800 hover:text-brand-primary">
+              <span>❤️</span>
+              <span>Lista de Favoritos</span>
+            </a>
+            <a href="/rastrear-pedido" class="flex items-center space-x-3 py-3 text-gray-800 hover:text-brand-primary">
+              <span>📦</span>
+              <span>Rastrear Pedido</span>
+            </a>
+            <a href="/suporte" class="flex items-center space-x-3 py-3 text-gray-800 hover:text-brand-primary">
+              <span>🎧</span>
+              <span>Suporte</span>
+            </a>
+          </div>
+        </div>
+      </nav>
+    </div>
   </div>
+
+  <!-- Mobile Menu Overlay -->
+  <div class="mobile-menu-overlay fixed inset-0 bg-black/50 z-40 opacity-0 invisible transition-all duration-300"></div>
 </Layout>
+
+<style>
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  
+  .mobile-menu.active {
+    transform: translateX(0);
+  }
+  
+  .mobile-menu-overlay.active {
+    opacity: 1;
+    visibility: visible;
+  }
+  
+  /* Smooth animations */
+  .product-card {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .product-card:hover {
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  }
+  
+  /* Custom scrollbar */
+  .mobile-menu::-webkit-scrollbar {
+    width: 4px;
+  }
+  
+  .mobile-menu::-webkit-scrollbar-track {
+    background: #f1f1f1;
+  }
+  
+  .mobile-menu::-webkit-scrollbar-thumb {
+    background: #e74c3c;
+    border-radius: 2px;
+  }
+</style>
+
+<script>
+  // Mobile Menu Functionality
+  document.addEventListener('DOMContentLoaded', function() {
+    const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
+    const mobileMenu = document.querySelector('.mobile-menu');
+    const mobileMenuClose = document.querySelector('.mobile-menu-close');
+    const mobileMenuOverlay = document.querySelector('.mobile-menu-overlay');
+    
+    function openMobileMenu() {
+      mobileMenu?.classList.add('active');
+      mobileMenuOverlay?.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+    
+    function closeMobileMenu() {
+      mobileMenu?.classList.remove('active');
+      mobileMenuOverlay?.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+    
+    mobileMenuBtn?.addEventListener('click', openMobileMenu);
+    mobileMenuClose?.addEventListener('click', closeMobileMenu);
+    mobileMenuOverlay?.addEventListener('click', closeMobileMenu);
+    
+    // Close on escape
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') closeMobileMenu();
+    });
+    
+    // Theme toggle
+    const themeToggle = document.getElementById('theme-toggle');
+    themeToggle?.addEventListener('click', function() {
+      document.documentElement.classList.toggle('dark');
+      const theme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
+      localStorage.setItem('theme', theme);
+      
+      // Update button
+      this.textContent = theme === 'dark' ? '☀️' : '🌙';
+    });
+    
+    // Load saved theme
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'dark') {
+      document.documentElement.classList.add('dark');
+      const toggle = document.getElementById('theme-toggle');
+      if (toggle) toggle.textContent = '☀️';
+    }
+  });
+</script>
